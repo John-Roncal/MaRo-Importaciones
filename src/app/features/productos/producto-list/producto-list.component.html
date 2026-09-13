@@ -1,0 +1,69 @@
+<section class="inventario">
+  <header class="inventario__header">
+    <div>
+      <h1>Inventario</h1>
+      <p class="inventario__subtitulo">{{ productos.length }} productos registrados</p>
+    </div>
+    <div class="inventario__buscador">
+      <input
+        type="search"
+        placeholder="Buscar por nombre o código de barras"
+        [(ngModel)]="busqueda"
+        aria-label="Buscar producto"
+      />
+    </div>
+  </header>
+
+  <p class="inventario__error" *ngIf="error" role="alert">{{ error }}</p>
+
+  <div class="inventario__vacio" *ngIf="!cargando && !error && productosFiltrados.length === 0">
+    <p *ngIf="busqueda">No hay productos que coincidan con "{{ busqueda }}".</p>
+    <p *ngIf="!busqueda">Todavía no registras productos. Empieza agregando el primero.</p>
+  </div>
+
+  <div class="tabla" *ngIf="!cargando && productosFiltrados.length > 0">
+    <div class="tabla__fila tabla__fila--encabezado">
+      <span>Producto</span>
+      <span class="num">Compra</span>
+      <span class="num">Venta</span>
+      <span class="num">Stock</span>
+      <span>Estado</span>
+      <span class="acciones-header">Acciones</span>
+    </div>
+
+    <div class="tabla__fila" *ngFor="let p of productosFiltrados">
+      <div class="tabla__producto">
+        <span class="tabla__nombre">{{ p.nombre }}</span>
+        <span class="tabla__codigo" *ngIf="p.codigo_barras">{{ p.codigo_barras }}</span>
+      </div>
+      <span class="num">S/ {{ p.precio_compra.toFixed(2) }}</span>
+      <span class="num">S/ {{ p.precio_venta.toFixed(2) }}</span>
+      <span class="num tabla__stock">{{ p.stock_actual ?? 0 }} <small>{{ p.unidad_medida }}</small></span>
+      <span class="estado" [class]="'estado--' + estadoStock(p)">
+        <i class="estado__punto"></i>{{ etiquetaEstado(estadoStock(p)) }}
+      </span>
+      <span class="acciones">
+        <button type="button" class="btn-icono" (click)="abrirAjuste(p)" title="Registrar movimiento de stock">±</button>
+        <button type="button" class="btn-icono" (click)="abrirEdicion(p)" title="Editar producto">✎</button>
+      </span>
+    </div>
+  </div>
+
+  <p class="inventario__cargando" *ngIf="cargando">Cargando inventario…</p>
+
+  <button type="button" class="fab" (click)="abrirNuevo()" aria-label="Agregar producto">+</button>
+</section>
+
+<app-producto-form
+  *ngIf="mostrarFormulario"
+  [producto]="productoSeleccionado"
+  (cerrar)="mostrarFormulario = false"
+  (guardado)="onGuardado()"
+></app-producto-form>
+
+<app-ajuste-stock-dialog
+  *ngIf="mostrarAjuste && productoParaAjuste"
+  [producto]="productoParaAjuste"
+  (cerrar)="mostrarAjuste = false"
+  (aplicado)="onAjusteAplicado()"
+></app-ajuste-stock-dialog>

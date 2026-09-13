@@ -1,0 +1,17 @@
+<div class="scanner-backdrop">
+  <div class="scanner-panel">
+    <header class="scanner-panel__header">
+      <h2>Escanear código de barras</h2>
+      <button type="button" class="btn-icono" (click)="cancelar()" aria-label="Cerrar">✕</button>
+    </header>
+
+    <div class="scanner-panel__camara">
+      <div #lector class="scanner-panel__lector"></div>
+      <div class="scanner-panel__marco" *ngIf="!error"></div>
+    </div>
+
+    <p class="scanner-panel__ayuda" *ngIf="iniciando && !error">Activando cámara…</p>
+    <p class="scanner-panel__error" *ngIf="error">{{ error }}</p>
+    <p class="scanner-panel__ayuda" *ngIf="!iniciando && !error">Apunta la cámara al código de barras del producto.</p>
+  </div>
+</div>

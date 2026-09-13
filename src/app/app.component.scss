@@ -1,0 +1,40 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.nav__marca {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-ink);
+}
+
+.nav__links {
+  display: flex;
+  gap: 20px;
+
+  a {
+    text-decoration: none;
+    color: var(--color-ink-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 6px 2px;
+    border-bottom: 2px solid transparent;
+
+    &.activo {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    &:hover {
+      color: var(--color-ink);
+    }
+  }
+}

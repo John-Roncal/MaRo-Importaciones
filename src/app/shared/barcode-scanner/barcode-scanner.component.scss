@@ -1,0 +1,63 @@
+.scanner-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.scanner-panel {
+  background: var(--color-surface);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scanner-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h2 { margin: 0; font-size: 1rem; }
+}
+
+.scanner-panel__camara {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  min-height: 260px;
+}
+
+.scanner-panel__lector {
+  width: 100%;
+}
+
+.scanner-panel__marco {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 260px;
+  height: 160px;
+  border: 2px solid var(--color-primary);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.scanner-panel__ayuda,
+.scanner-panel__error {
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+}
+
+.scanner-panel__ayuda { color: var(--color-ink-muted); }
+.scanner-panel__error { color: var(--color-danger); }

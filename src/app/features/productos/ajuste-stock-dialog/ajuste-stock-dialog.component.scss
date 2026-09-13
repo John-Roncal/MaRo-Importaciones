@@ -1,0 +1,112 @@
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 42, 36, 0.35);
+  z-index: 40;
+}
+
+.dialogo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 360px;
+  background: var(--color-surface);
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.dialogo__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h2 { margin: 0; font-size: 1.05rem; }
+}
+
+.dialogo__producto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+  color: var(--color-ink-muted);
+  margin: 0;
+
+  strong { color: var(--color-ink); font-size: 0.95rem; }
+}
+
+.dialogo__tipo {
+  display: flex;
+  gap: 8px;
+
+  button {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    cursor: pointer;
+    font-weight: 600;
+    font-family: var(--font-ui);
+
+    &.activo {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: white;
+    }
+  }
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--color-ink-muted);
+
+  input, select {
+    padding: 9px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    background: var(--color-bg);
+    color: var(--color-ink);
+  }
+}
+
+.campo-error { color: var(--color-danger); font-size: 0.8rem; margin: 0; }
+
+.dialogo__acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-primario, .btn-secundario {
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  border: none;
+}
+
+.btn-primario {
+  background: var(--color-primary);
+  color: white;
+  &:disabled { opacity: 0.6; }
+}
+
+.btn-secundario {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-ink);
+}

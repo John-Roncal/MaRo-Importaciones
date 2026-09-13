@@ -1,0 +1,92 @@
+<section class="pos">
+  <div class="pos__buscar">
+    <h1>Punto de venta</h1>
+    <div class="pos__buscar-fila">
+      <input
+        type="search"
+        placeholder="Buscar producto por nombre o código de barras"
+        [(ngModel)]="busqueda"
+        aria-label="Buscar producto para agregar"
+      />
+      <button type="button" class="btn-secundario btn-escanear" (click)="abrirScanner()">📷 Escanear</button>
+    </div>
+    <ul class="pos__resultados" *ngIf="resultados.length > 0">
+      <li *ngFor="let p of resultados" (click)="agregarAlCarrito(p)">
+        <div class="pos__resultado-info">
+          <span class="pos__resultado-nombre">{{ p.nombre }}</span>
+          <span class="pos__resultado-stock">Stock: {{ p.stock_actual ?? 0 }} {{ p.unidad_medida }}</span>
+        </div>
+        <span class="num">S/ {{ p.precio_venta.toFixed(2) }}</span>
+      </li>
+    </ul>
+    <p class="pos__cargando" *ngIf="cargando">Cargando catálogo…</p>
+    <p class="campo-error" *ngIf="error">{{ error }}</p>
+  </div>
+
+  <div class="pos__carrito">
+    <h2>Carrito</h2>
+
+    <p class="pos__vacio" *ngIf="carrito.length === 0">Agrega productos buscándolos arriba.</p>
+
+    <div class="carrito__fila" *ngFor="let item of carrito">
+      <div class="carrito__info">
+        <span class="carrito__nombre">{{ item.producto.nombre }}</span>
+        <label class="carrito__precio-edit">
+          S/
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            [ngModel]="item.precio_unitario"
+            (ngModelChange)="actualizarPrecio(item, $event)"
+            aria-label="Precio unitario para esta venta"
+          />
+          <span class="carrito__precio-original" *ngIf="item.precio_unitario !== item.producto.precio_venta">
+            (catálogo: S/ {{ item.producto.precio_venta.toFixed(2) }})
+          </span>
+        </label>
+        <span class="carrito__advertencia" *ngIf="precioPorDebajoCosto(item)">
+          ⚠ No cubre el costo (S/ {{ item.producto.precio_compra.toFixed(2) }})
+        </span>
+      </div>
+      <div class="carrito__cantidad">
+        <button type="button" (click)="cambiarCantidad(item, -1)" aria-label="Quitar uno">−</button>
+        <span>{{ item.cantidad }}</span>
+        <button type="button" (click)="cambiarCantidad(item, 1)" aria-label="Agregar uno">+</button>
+      </div>
+      <span class="num carrito__subtotal">S/ {{ (item.cantidad * item.precio_unitario).toFixed(2) }}</span>
+      <button type="button" class="btn-icono" (click)="quitarDelCarrito(item)" aria-label="Eliminar del carrito">✕</button>
+    </div>
+
+    <p class="campo-error" *ngIf="errorVenta">{{ errorVenta }}</p>
+
+    <div class="pos__total">
+      <span>Total</span>
+      <span class="num">S/ {{ total.toFixed(2) }}</span>
+    </div>
+
+    <button
+      type="button"
+      class="btn-primario btn-cobrar"
+      [disabled]="carrito.length === 0 || procesando"
+      (click)="cobrar()"
+    >
+      {{ procesando ? 'Procesando…' : 'Cobrar' }}
+    </button>
+  </div>
+</section>
+
+<div class="confirmacion" *ngIf="ventaConfirmada">
+  <div class="confirmacion__tarjeta">
+    <h2>✅ Venta registrada</h2>
+    <p>Total cobrado: <strong>S/ {{ ventaConfirmada.total.toFixed(2) }}</strong></p>
+    <p class="confirmacion__nota">La impresión del ticket se conecta en la Fase 4.</p>
+    <button type="button" class="btn-primario" (click)="nuevaVenta()">Nueva venta</button>
+  </div>
+</div>
+
+<app-barcode-scanner
+  *ngIf="mostrarScanner"
+  (detectado)="onCodigoDetectado($event)"
+  (cerrar)="mostrarScanner = false"
+></app-barcode-scanner>
