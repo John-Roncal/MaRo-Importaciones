@@ -5,13 +5,14 @@ import { Producto } from '../../../models/models';
 import { ProductoService } from '../../../core/services/producto.service';
 import { ProductoFormComponent } from '../producto-form/producto-form.component';
 import { AjusteStockDialogComponent } from '../ajuste-stock-dialog/ajuste-stock-dialog.component';
+import { HistorialMovimientosDialogComponent } from '../historial-movimientos-dialog/historial-movimientos-dialog.component';
 
 type EstadoStock = 'ok' | 'bajo' | 'agotado';
 
 @Component({
   selector: 'app-producto-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductoFormComponent, AjusteStockDialogComponent],
+  imports: [CommonModule, FormsModule, ProductoFormComponent, AjusteStockDialogComponent, HistorialMovimientosDialogComponent],
   templateUrl: './producto-list.component.html',
   styleUrl: './producto-list.component.scss'
 })
@@ -26,6 +27,9 @@ export class ProductoListComponent implements OnInit {
 
   mostrarAjuste = false;
   productoParaAjuste: Producto | null = null;
+
+  mostrarHistorial = false;
+  productoParaHistorial: Producto | null = null;
 
   constructor(private productoService: ProductoService) {}
 
@@ -78,6 +82,11 @@ export class ProductoListComponent implements OnInit {
   abrirAjuste(p: Producto) {
     this.productoParaAjuste = p;
     this.mostrarAjuste = true;
+  }
+
+  abrirHistorial(p: Producto) {
+    this.productoParaHistorial = p;
+    this.mostrarHistorial = true;
   }
 
   onGuardado() {

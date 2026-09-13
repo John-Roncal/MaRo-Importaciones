@@ -1,0 +1,28 @@
+<div class="drawer-backdrop" (click)="cerrar.emit()"></div>
+<div class="historial" role="dialog" aria-modal="true" aria-label="Historial de movimientos">
+  <header class="historial__header">
+    <div>
+      <h2>Historial de movimientos</h2>
+      <p class="historial__producto">{{ producto.nombre }}</p>
+    </div>
+    <button type="button" class="btn-icono" (click)="cerrar.emit()" aria-label="Cerrar">✕</button>
+  </header>
+
+  <p class="historial__cargando" *ngIf="cargando">Cargando historial…</p>
+  <p class="campo-error" *ngIf="error">{{ error }}</p>
+
+  <div class="historial__vacio" *ngIf="!cargando && !error && movimientos.length === 0">
+    Este producto todavía no tiene movimientos registrados.
+  </div>
+
+  <div class="historial__lista" *ngIf="!cargando && movimientos.length > 0">
+    <div class="historial__fila" *ngFor="let m of movimientos">
+      <span class="historial__tipo" [class]="'tipo--' + m.tipo">{{ etiquetaTipo(m.tipo) }}</span>
+      <div class="historial__detalle">
+        <span class="historial__cantidad">{{ m.cantidad }} {{ producto.unidad_medida }}</span>
+        <span class="historial__motivo" *ngIf="m.motivo">{{ m.motivo }}</span>
+      </div>
+      <span class="historial__fecha">{{ formatearFecha(m.fecha_hora) }}</span>
+    </div>
+  </div>
+</div>

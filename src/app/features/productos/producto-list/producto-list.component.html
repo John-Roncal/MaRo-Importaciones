@@ -44,6 +44,7 @@
       </span>
       <span class="acciones">
         <button type="button" class="btn-icono" (click)="abrirAjuste(p)" title="Registrar movimiento de stock">±</button>
+        <button type="button" class="btn-icono" (click)="abrirHistorial(p)" title="Ver historial de movimientos">🕒</button>
         <button type="button" class="btn-icono" (click)="abrirEdicion(p)" title="Editar producto">✎</button>
       </span>
     </div>
@@ -67,3 +68,9 @@
   (cerrar)="mostrarAjuste = false"
   (aplicado)="onAjusteAplicado()"
 ></app-ajuste-stock-dialog>
+
+<app-historial-movimientos-dialog
+  *ngIf="mostrarHistorial && productoParaHistorial"
+  [producto]="productoParaHistorial"
+  (cerrar)="mostrarHistorial = false"
+></app-historial-movimientos-dialog>
