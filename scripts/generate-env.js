@@ -21,5 +21,6 @@ const contenido = `export const environment = {
 `;
 
 const destino = path.join(__dirname, '..', 'src', 'environments', 'environment.prod.ts');
+fs.mkdirSync(path.dirname(destino), { recursive: true }); // por si la carpeta no existe en el repo clonado
 fs.writeFileSync(destino, contenido);
 console.log('✅ environment.prod.ts generado a partir de variables de entorno.');
