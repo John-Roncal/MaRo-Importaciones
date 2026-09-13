@@ -51,7 +51,7 @@ export class PrinterService {
     this.characteristic = null;
   }
 
-  async imprimirTicket(venta: ResultadoVenta, items: ItemCarrito[], negocio = 'MaRoImportación'): Promise<void> {
+  async imprimirTicket(venta: ResultadoVenta, items: ItemCarrito[], negocio = 'Ma-Ro Importaciones'): Promise<void> {
     if (!this.conectada) {
       await this.conectar();
     } else if (!this.characteristic) {

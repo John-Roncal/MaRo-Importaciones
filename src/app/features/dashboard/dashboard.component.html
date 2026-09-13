@@ -1,0 +1,75 @@
+<section class="dashboard">
+  <h1>Panel de rentabilidad</h1>
+
+  <p class="dashboard__error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="dashboard__cargando" *ngIf="cargando">Calculando métricas…</p>
+
+  <ng-container *ngIf="!cargando && !error">
+
+    <div class="kpis">
+      <div class="kpi">
+        <span class="kpi__etiqueta">Invertido en stock</span>
+        <span class="kpi__valor">S/ {{ totalInversion.toFixed(2) }}</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi__etiqueta">Venta potencial del stock</span>
+        <span class="kpi__valor">S/ {{ totalVentaPotencial.toFixed(2) }}</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi__etiqueta">Ganancia potencial (si se vende todo)</span>
+        <span class="kpi__valor">S/ {{ gananciaPotencial.toFixed(2) }}</span>
+      </div>
+      <div class="kpi kpi--real">
+        <span class="kpi__etiqueta">Ganancia real acumulada</span>
+        <span class="kpi__valor">S/ {{ gananciaReal.toFixed(2) }}</span>
+      </div>
+    </div>
+
+    <div class="seccion" *ngIf="productosStockBajo.length > 0">
+      <h2>⚠ Alertas de stock bajo</h2>
+      <div class="alerta-fila" *ngFor="let p of productosStockBajo">
+        <span class="alerta-fila__nombre">{{ p.nombre }}</span>
+        <span class="num">{{ p.stock_actual ?? 0 }} / mín. {{ p.stock_minimo }} {{ p.unidad_medida }}</span>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h2>Rentabilidad por producto (curva ABC)</h2>
+
+      <p class="dashboard__vacio" *ngIf="!hayVentasRegistradas">
+        Todavía no hay ventas registradas para calcular rentabilidad real. Esta tabla se llena a medida que vendas.
+      </p>
+
+      <div class="tabla-bi" *ngIf="hayVentasRegistradas">
+        <div class="tabla-bi__fila tabla-bi__fila--encabezado">
+          <span>Producto</span>
+          <span class="num">Vendidos</span>
+          <span class="num">Vendidos (30d)</span>
+          <span class="num">Ingresos</span>
+          <span class="num">Ganancia</span>
+          <span>Clase</span>
+        </div>
+
+        <div class="tabla-bi__fila" *ngFor="let f of filas">
+          <div class="tabla-bi__producto">
+            <span class="tabla-bi__nombre">{{ f.nombre }}</span>
+            <div class="tabla-bi__barra-fondo">
+              <div class="tabla-bi__barra" [class]="'clase--' + f.clase" [style.width.%]="anchoBarra(f.ganancia_total)"></div>
+            </div>
+          </div>
+          <span class="num">{{ f.unidades_vendidas }}</span>
+          <span class="num">{{ f.unidades_30d }}</span>
+          <span class="num">S/ {{ f.ingresos_totales.toFixed(2) }}</span>
+          <span class="num">S/ {{ f.ganancia_total.toFixed(2) }}</span>
+          <span class="clase-etiqueta" [class]="'clase--' + f.clase">{{ f.clase }}</span>
+        </div>
+      </div>
+
+      <p class="dashboard__nota" *ngIf="hayVentasRegistradas">
+        <strong>A</strong> = el 80% de tu ganancia viene de estos productos, prioridad de reposición.
+        <strong>B</strong> = aportan hasta el 95%. <strong>C</strong> = el resto, candidatos a revisar si vale la pena mantenerlos.
+      </p>
+    </div>
+
+  </ng-container>
+</section>

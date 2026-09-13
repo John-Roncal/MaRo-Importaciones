@@ -15,6 +15,13 @@ export const routes: Routes = [
         m => m.PuntoVentaComponent
       )
   },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(
+        m => m.DashboardComponent
+      )
+  },
   { path: '', redirectTo: 'vender', pathMatch: 'full' },
   { path: '**', redirectTo: 'vender' }
 ];
