@@ -80,8 +80,13 @@
   <div class="confirmacion__tarjeta">
     <h2>✅ Venta registrada</h2>
     <p>Total cobrado: <strong>S/ {{ ventaConfirmada.total.toFixed(2) }}</strong></p>
-    <p class="confirmacion__nota">La impresión del ticket se conecta en la Fase 4.</p>
-    <button type="button" class="btn-primario" (click)="nuevaVenta()">Nueva venta</button>
+
+    <p class="campo-error" *ngIf="errorImpresion">{{ errorImpresion }}</p>
+
+    <button type="button" class="btn-primario" [disabled]="imprimiendo" (click)="imprimirTicket()">
+      {{ imprimiendo ? 'Imprimiendo…' : '🖨️ Imprimir ticket' }}
+    </button>
+    <button type="button" class="btn-secundario" (click)="nuevaVenta()">Nueva venta</button>
   </div>
 </div>
 

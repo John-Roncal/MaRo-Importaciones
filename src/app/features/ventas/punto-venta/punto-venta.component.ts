@@ -5,6 +5,7 @@ import { Producto } from '../../../models/models';
 import { ItemCarrito, ResultadoVenta } from '../../../models/venta.model';
 import { ProductoService } from '../../../core/services/producto.service';
 import { VentaService } from '../../../core/services/venta.service';
+import { PrinterService } from '../../../core/services/printer.service';
 import { BarcodeScannerComponent } from '../../../shared/barcode-scanner/barcode-scanner.component';
 
 @Component({
@@ -18,6 +19,7 @@ export class PuntoVentaComponent implements OnInit {
   productos: Producto[] = [];
   busqueda = '';
   carrito: ItemCarrito[] = [];
+  ticketItems: ItemCarrito[] = [];
 
   mostrarScanner = false;
 
@@ -30,7 +32,8 @@ export class PuntoVentaComponent implements OnInit {
 
   constructor(
     private productoService: ProductoService,
-    private ventaService: VentaService
+    private ventaService: VentaService,
+    private printerService: PrinterService
   ) {}
 
   ngOnInit() {
@@ -125,6 +128,7 @@ export class PuntoVentaComponent implements OnInit {
     this.errorVenta = '';
     try {
       this.ventaConfirmada = await this.ventaService.registrarVenta(this.carrito);
+      this.ticketItems = [...this.carrito]; // se guarda para poder imprimir después de limpiar el carrito
       this.carrito = [];
       await this.cargarProductos(); // refresca stock ya descontado
     } catch (e: any) {
@@ -136,7 +140,25 @@ export class PuntoVentaComponent implements OnInit {
     }
   }
 
+  imprimiendo = false;
+  errorImpresion = '';
+
+  async imprimirTicket() {
+    if (!this.ventaConfirmada) return;
+    this.imprimiendo = true;
+    this.errorImpresion = '';
+    try {
+      await this.printerService.imprimirTicket(this.ventaConfirmada, this.ticketItems);
+    } catch (e: any) {
+      this.errorImpresion = 'No se pudo imprimir. Verifica que la impresora esté encendida y cerca del dispositivo.';
+    } finally {
+      this.imprimiendo = false;
+    }
+  }
+
   nuevaVenta() {
     this.ventaConfirmada = null;
+    this.ticketItems = [];
+    this.errorImpresion = '';
   }
 }

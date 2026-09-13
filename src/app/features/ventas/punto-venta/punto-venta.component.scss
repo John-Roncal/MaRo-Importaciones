@@ -212,6 +212,12 @@
   h2 { margin: 0 0 12px; color: var(--color-primary); }
   p { margin: 6px 0; }
   strong { font-family: var(--font-mono); }
+
+  .btn-primario, .btn-secundario {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+  }
 }
 
 .confirmacion__nota {
