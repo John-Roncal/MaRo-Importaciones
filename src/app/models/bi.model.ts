@@ -1,5 +1,6 @@
 export interface Valorizacion {
   id: string;
+  sucursal_id: string;
   nombre: string;
   stock_actual: number;
   precio_compra: number;
@@ -11,6 +12,7 @@ export interface Valorizacion {
 
 export interface RentabilidadProducto {
   id: string;
+  sucursal_id: string;
   nombre: string;
   stock_actual: number;
   precio_compra: number;
@@ -23,6 +25,7 @@ export interface RentabilidadProducto {
 
 export interface VentasProducto {
   producto_id: string;
+  sucursal_id: string;
   unidades_30d: number;
   ingresos_30d: number;
 }

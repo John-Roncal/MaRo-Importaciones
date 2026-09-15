@@ -1,5 +1,16 @@
 <header class="nav">
   <span class="nav__marca">Ma-Ro Importaciones</span>
+
+  <select
+    class="nav__sucursal"
+    *ngIf="sucursalService.sucursales.length > 0"
+    [ngModel]="sucursalService.sucursalActivaId"
+    (ngModelChange)="cambiarSucursal($event)"
+    aria-label="Sucursal activa"
+  >
+    <option *ngFor="let s of sucursalService.sucursales" [value]="s.id">{{ s.nombre_comercial }}</option>
+  </select>
+
   <nav class="nav__links">
     <a routerLink="/vender" routerLinkActive="activo">Vender</a>
     <a routerLink="/inventario" routerLinkActive="activo">Inventario</a>

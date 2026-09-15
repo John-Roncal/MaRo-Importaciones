@@ -1,5 +1,6 @@
 export interface Producto {
   id?: string;
+  sucursal_id?: string; // lo asigna ProductoService automáticamente al crear
   nombre: string;
   codigo_barras?: string | null;
   categoria_id?: string | null;
@@ -10,6 +11,13 @@ export interface Producto {
   unidad_medida: string;
   activo?: boolean;
   created_at?: string;
+}
+
+export interface Sucursal {
+  id?: string;
+  nombre_comercial: string;
+  direccion?: string | null;
+  activa?: boolean;
 }
 
 export type TipoMovimiento = 'INGRESO' | 'SALIDA' | 'AJUSTE';
