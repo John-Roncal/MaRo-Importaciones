@@ -1,9 +1,9 @@
-<header class="nav">
-  <span class="nav__marca">Ma-Ro Importaciones</span>
+<header class="nav" *ngIf="authService.estaAutenticado">
+  <span class="nav__marca">MaRoImportación</span>
 
   <select
     class="nav__sucursal"
-    *ngIf="sucursalService.sucursales.length > 0"
+    *ngIf="sucursalService.sucursales.length > 1"
     [ngModel]="sucursalService.sucursalActivaId"
     (ngModelChange)="cambiarSucursal($event)"
     aria-label="Sucursal activa"
@@ -11,11 +11,17 @@
     <option *ngFor="let s of sucursalService.sucursales" [value]="s.id">{{ s.nombre_comercial }}</option>
   </select>
 
+  <span class="nav__sucursal-fija" *ngIf="sucursalService.sucursales.length === 1">
+    {{ sucursalService.sucursales[0].nombre_comercial }}
+  </span>
+
   <nav class="nav__links">
     <a routerLink="/vender" routerLinkActive="activo">Vender</a>
-    <a routerLink="/inventario" routerLinkActive="activo">Inventario</a>
-    <a routerLink="/dashboard" routerLinkActive="activo">Reportes</a>
+    <a routerLink="/inventario" routerLinkActive="activo" *ngIf="authService.esAdmin">Inventario</a>
+    <a routerLink="/dashboard" routerLinkActive="activo" *ngIf="authService.esAdmin">Reportes</a>
   </nav>
+
+  <button type="button" class="nav__salir" (click)="salir()">Salir</button>
 </header>
 
 <router-outlet></router-outlet>

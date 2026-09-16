@@ -2,15 +2,21 @@ import { ApplicationConfig, provideZoneChangeDetection, provideAppInitializer, i
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
+import { AuthService } from './core/services/auth.service';
 import { SucursalService } from './core/services/sucursal.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideAppInitializer(() => {
+    provideAppInitializer(async () => {
+      const authService = inject(AuthService);
       const sucursalService = inject(SucursalService);
-      return sucursalService.cargarSucursales();
+
+      await authService.inicializar();
+      if (authService.estaAutenticado) {
+        await sucursalService.cargarSucursales();
+      }
     })
   ]
 };

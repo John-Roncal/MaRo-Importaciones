@@ -29,6 +29,29 @@
   font-weight: 600;
 }
 
+.nav__sucursal-fija {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+}
+
+.nav__salir {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-ink-muted);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+  }
+}
+
 .nav__links {
   display: flex;
   gap: 20px;

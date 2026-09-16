@@ -1,0 +1,22 @@
+<div class="login">
+  <form class="login__tarjeta" (ngSubmit)="ingresar()">
+    <h1>MaRoImportación</h1>
+    <p class="login__subtitulo">Inicia sesión para continuar</p>
+
+    <label>
+      Correo
+      <input type="email" name="email" [(ngModel)]="email" required autocomplete="username" />
+    </label>
+
+    <label>
+      Contraseña
+      <input type="password" name="password" [(ngModel)]="password" required autocomplete="current-password" />
+    </label>
+
+    <p class="login__error" *ngIf="error">{{ error }}</p>
+
+    <button type="submit" class="btn-primario" [disabled]="cargando">
+      {{ cargando ? 'Ingresando…' : 'Ingresar' }}
+    </button>
+  </form>
+</div>

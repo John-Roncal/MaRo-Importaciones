@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from './core/services/auth.service';
 import { SucursalService } from './core/services/sucursal.service';
 
 @Component({
@@ -13,20 +14,25 @@ import { SucursalService } from './core/services/sucursal.service';
 export class AppComponent implements OnInit {
   title = 'MaRoImportacion';
 
-  constructor(public sucursalService: SucursalService) {}
+  constructor(
+    public authService: AuthService,
+    public sucursalService: SucursalService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    // Ya se cargaron en el arranque de la app (ver app.config.ts),
-    // esto solo asegura tener el listado disponible para el selector.
-    if (this.sucursalService.sucursales.length === 0) {
+    if (this.authService.estaAutenticado && this.sucursalService.sucursales.length === 0) {
       this.sucursalService.cargarSucursales();
     }
   }
 
   cambiarSucursal(id: string) {
     this.sucursalService.establecerSucursalActiva(id);
-    // Recarga completa para que todos los componentes ya cargados
-    // vuelvan a pedir sus datos con la nueva sucursal activa.
     window.location.reload();
+  }
+
+  async salir() {
+    await this.authService.logout();
+    this.router.navigateByUrl('/login');
   }
 }
