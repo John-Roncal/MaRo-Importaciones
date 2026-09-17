@@ -2,6 +2,7 @@ import { Producto } from './models';
 
 export interface Venta {
   id?: string;
+  sucursal_id?: string;
   fecha_hora?: string;
   total: number;
   estado?: string;
@@ -14,6 +15,11 @@ export interface DetalleVenta {
   cantidad: number;
   precio_unitario: number;
   subtotal: number;
+}
+
+// Fila de detalle con el nombre del producto ya incluido (join con productos)
+export interface DetalleVentaConProducto extends DetalleVenta {
+  productos: { nombre: string } | null;
 }
 
 export interface ItemCarrito {

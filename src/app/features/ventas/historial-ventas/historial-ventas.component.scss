@@ -1,0 +1,144 @@
+.historial-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 20px;
+  }
+}
+
+.filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--color-ink-muted);
+  }
+
+  input[type="date"] {
+    padding: 9px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    background: var(--color-surface);
+  }
+}
+
+.btn-primario {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: var(--color-primary-dark); }
+}
+
+.btn-secundario {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-ink);
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { border-color: var(--color-primary); color: var(--color-primary); }
+}
+
+.historial-page__error {
+  background: #FBEAE6;
+  color: var(--color-danger);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.historial-page__cargando,
+.historial-page__vacio {
+  color: var(--color-ink-muted);
+  padding: 20px 0;
+}
+
+.historial-page__resumen {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+
+  strong { font-family: var(--font-mono); }
+}
+
+.historial-page__nota {
+  color: var(--color-ink-muted);
+  font-size: 0.8rem;
+}
+
+.tabla-ventas {
+  border-top: 1px solid var(--color-border);
+}
+
+.tabla-ventas__fila {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 2fr 1fr 1fr auto;
+  }
+
+  &.anulada {
+    opacity: 0.6;
+  }
+}
+
+.tabla-ventas__fila--encabezado {
+  display: none;
+  color: var(--color-ink-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  @media (min-width: 640px) {
+    display: grid;
+  }
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.estado-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+
+  &.anulada { color: var(--color-danger); }
+}
+
+.acciones {
+  grid-column: 1 / -1;
+  justify-self: end;
+
+  @media (min-width: 640px) {
+    grid-column: auto;
+  }
+}
+
+.acciones-header {
+  text-align: right;
+}

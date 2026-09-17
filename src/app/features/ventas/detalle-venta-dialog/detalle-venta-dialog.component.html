@@ -1,0 +1,58 @@
+<div class="drawer-backdrop" (click)="cerrar.emit()"></div>
+<div class="detalle-dialog" role="dialog" aria-modal="true" aria-label="Detalle de venta">
+  <header class="detalle-dialog__header">
+    <div>
+      <h2>Detalle de venta</h2>
+      <p class="detalle-dialog__fecha">{{ venta.fecha_hora | date: 'medium' }}</p>
+    </div>
+    <button type="button" class="btn-icono" (click)="cerrar.emit()" aria-label="Cerrar">✕</button>
+  </header>
+
+  <p class="detalle-dialog__anulada" *ngIf="estaAnulada">Esta venta está anulada. Ya no se puede editar.</p>
+
+  <p class="campo-error" *ngIf="error">{{ error }}</p>
+  <p class="detalle-dialog__cargando" *ngIf="cargando">Cargando…</p>
+
+  <div class="detalle-dialog__lista" *ngIf="!cargando && items.length > 0">
+    <div class="detalle-fila" *ngFor="let item of items">
+      <span class="detalle-fila__nombre">{{ item.productos?.nombre ?? 'Producto eliminado' }}</span>
+
+      <ng-container *ngIf="modoEdicion && !estaAnulada; else soloLectura">
+        <label class="detalle-fila__campo">
+          Cant.
+          <input type="number" min="0" step="1" [(ngModel)]="item.cantidad" />
+        </label>
+        <label class="detalle-fila__campo">
+          Precio
+          <input type="number" min="0" step="0.01" [(ngModel)]="item.precio_unitario" />
+        </label>
+        <button
+          type="button"
+          class="btn-secundario"
+          [disabled]="guardandoItemId === item.id"
+          (click)="guardarItem(item)"
+        >
+          {{ guardandoItemId === item.id ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </ng-container>
+      <ng-template #soloLectura>
+        <span class="num">{{ item.cantidad }} x S/ {{ item.precio_unitario.toFixed(2) }}</span>
+        <span class="num detalle-fila__subtotal">S/ {{ item.subtotal.toFixed(2) }}</span>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="detalle-dialog__total" *ngIf="!cargando">
+    <span>Total</span>
+    <span class="num">S/ {{ venta.total.toFixed(2) }}</span>
+  </div>
+
+  <div class="detalle-dialog__acciones" *ngIf="!cargando && !estaAnulada">
+    <button type="button" class="btn-secundario" (click)="modoEdicion = !modoEdicion">
+      {{ modoEdicion ? 'Salir de edición' : 'Editar items' }}
+    </button>
+    <button type="button" class="btn-peligro" [disabled]="anulando" (click)="anular()">
+      {{ anulando ? 'Anulando…' : 'Anular venta' }}
+    </button>
+  </div>
+</div>

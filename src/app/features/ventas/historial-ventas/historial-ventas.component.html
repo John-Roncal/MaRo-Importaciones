@@ -1,0 +1,56 @@
+<section class="historial-page">
+  <h1>Historial de ventas</h1>
+
+  <div class="filtros">
+    <label>
+      Desde
+      <input type="date" [(ngModel)]="desde" />
+    </label>
+    <label>
+      Hasta
+      <input type="date" [(ngModel)]="hasta" />
+    </label>
+    <button type="button" class="btn-primario" (click)="buscar()">Buscar</button>
+  </div>
+
+  <p class="historial-page__error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="historial-page__cargando" *ngIf="cargando">Cargando ventas…</p>
+
+  <ng-container *ngIf="!cargando && !error">
+    <p class="historial-page__resumen" *ngIf="ventas.length > 0">
+      {{ ventas.length }} venta(s) en el rango — Total: <strong>S/ {{ totalDelRango.toFixed(2) }}</strong>
+      <span class="historial-page__nota">(no incluye ventas anuladas)</span>
+    </p>
+
+    <p class="historial-page__vacio" *ngIf="ventas.length === 0">
+      No hay ventas registradas en ese rango de fechas.
+    </p>
+
+    <div class="tabla-ventas" *ngIf="ventas.length > 0">
+      <div class="tabla-ventas__fila tabla-ventas__fila--encabezado">
+        <span>Fecha</span>
+        <span class="num">Total</span>
+        <span>Estado</span>
+        <span class="acciones-header">Acciones</span>
+      </div>
+
+      <div class="tabla-ventas__fila" *ngFor="let v of ventas" [class.anulada]="v.estado === 'anulada'">
+        <span>{{ v.fecha_hora | date: 'medium' }}</span>
+        <span class="num">S/ {{ v.total.toFixed(2) }}</span>
+        <span class="estado-badge" [class.anulada]="v.estado === 'anulada'">
+          {{ v.estado === 'anulada' ? 'Anulada' : 'Completada' }}
+        </span>
+        <span class="acciones">
+          <button type="button" class="btn-secundario" (click)="verDetalle(v)">Ver detalle</button>
+        </span>
+      </div>
+    </div>
+  </ng-container>
+</section>
+
+<app-detalle-venta-dialog
+  *ngIf="ventaSeleccionada"
+  [venta]="ventaSeleccionada"
+  (cerrar)="onCerrarDetalle()"
+  (actualizada)="onVentaActualizada()"
+></app-detalle-venta-dialog>

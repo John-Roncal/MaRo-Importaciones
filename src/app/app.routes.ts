@@ -33,6 +33,14 @@ export const routes: Routes = [
         m => m.DashboardComponent
       )
   },
+  {
+    path: 'historial-ventas',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/ventas/historial-ventas/historial-ventas.component').then(
+        m => m.HistorialVentasComponent
+      )
+  },
   { path: '', redirectTo: 'vender', pathMatch: 'full' },
   { path: '**', redirectTo: 'vender' }
 ];
