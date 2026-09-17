@@ -80,6 +80,7 @@ export class ProductoFormComponent implements OnChanges {
     this.errorGeneral = '';
     try {
       const { stock_inicial, ...datos } = this.form.getRawValue();
+      datos.codigo_barras = datos.codigo_barras?.trim() ? datos.codigo_barras.trim() : null;
       if (this.esEdicion && this.producto?.id) {
         await this.productoService.actualizar(this.producto.id, datos);
       } else {
