@@ -1,5 +1,5 @@
 <header class="nav" *ngIf="authService.estaAutenticado">
-  <span class="nav__marca">Ma-Ro Importaciones & Abarrotes</span>
+  <span class="nav__marca">MaRoImportación</span>
 
   <select
     class="nav__sucursal"
@@ -20,6 +20,7 @@
     <a routerLink="/inventario" routerLinkActive="activo" *ngIf="authService.esAdmin">Inventario</a>
     <a routerLink="/dashboard" routerLinkActive="activo" *ngIf="authService.esAdmin">Reportes</a>
     <a routerLink="/historial-ventas" routerLinkActive="activo" *ngIf="authService.esAdmin">Historial</a>
+    <a routerLink="/sucursales" routerLinkActive="activo" *ngIf="authService.esAdmin">Sucursales</a>
   </nav>
 
   <button type="button" class="nav__salir" (click)="salir()">Salir</button>

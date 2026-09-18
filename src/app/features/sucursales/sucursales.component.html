@@ -1,0 +1,32 @@
+<section class="sucursales-page">
+  <h1>Sucursales</h1>
+  <p class="sucursales-page__subtitulo">Nombre comercial y logo que aparecen impresos en el ticket de cada sucursal.</p>
+
+  <p class="campo-error" *ngIf="error" role="alert">{{ error }}</p>
+
+  <div class="tarjeta-sucursal" *ngFor="let s of sucursalService.sucursales">
+    <div class="tarjeta-sucursal__logo">
+      <img *ngIf="s.logo_base64" [src]="s.logo_base64" alt="Logo de {{ s.nombre_comercial }}" />
+      <div class="tarjeta-sucursal__sin-logo" *ngIf="!s.logo_base64">Sin logo</div>
+    </div>
+
+    <div class="tarjeta-sucursal__campos">
+      <label>
+        Nombre comercial (para el ticket)
+        <input type="text" [(ngModel)]="s.nombre_comercial" />
+      </label>
+
+      <div class="tarjeta-sucursal__logo-acciones">
+        <label class="btn-secundario btn-archivo">
+          {{ s.logo_base64 ? 'Cambiar logo' : 'Subir logo' }}
+          <input type="file" accept="image/png, image/jpeg" (change)="onLogoSeleccionado($event, s)" hidden />
+        </label>
+        <button type="button" class="btn-texto" *ngIf="s.logo_base64" (click)="quitarLogo(s)">Quitar logo</button>
+      </div>
+
+      <button type="button" class="btn-primario" [disabled]="guardandoId === s.id" (click)="guardar(s)">
+        {{ guardandoId === s.id ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </div>
+</section>

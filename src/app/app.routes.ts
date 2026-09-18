@@ -41,6 +41,14 @@ export const routes: Routes = [
         m => m.HistorialVentasComponent
       )
   },
+  {
+    path: 'sucursales',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/sucursales/sucursales.component').then(
+        m => m.SucursalesComponent
+      )
+  },
   { path: '', redirectTo: 'vender', pathMatch: 'full' },
   { path: '**', redirectTo: 'vender' }
 ];

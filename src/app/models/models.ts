@@ -17,6 +17,7 @@ export interface Sucursal {
   id?: string;
   nombre_comercial: string;
   direccion?: string | null;
+  logo_base64?: string | null;
   activa?: boolean;
 }
 

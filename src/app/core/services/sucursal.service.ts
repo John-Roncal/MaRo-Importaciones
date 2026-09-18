@@ -40,4 +40,15 @@ export class SucursalService {
   establecerSucursalActiva(id: string) {
     localStorage.setItem(CLAVE_STORAGE, id);
   }
+
+  async actualizar(id: string, cambios: Partial<Sucursal>): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('sucursales')
+      .update(cambios)
+      .eq('id', id);
+    if (error) throw error;
+
+    const idx = this.sucursales.findIndex(s => s.id === id);
+    if (idx >= 0) this.sucursales[idx] = { ...this.sucursales[idx], ...cambios };
+  }
 }
