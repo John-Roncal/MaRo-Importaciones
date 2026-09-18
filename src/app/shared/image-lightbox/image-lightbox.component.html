@@ -1,0 +1,4 @@
+<div class="lightbox" (click)="cerrar.emit()">
+  <button type="button" class="lightbox__cerrar" (click)="cerrar.emit()" aria-label="Cerrar">✕</button>
+  <img [src]="src" [alt]="alt" (click)="$event.stopPropagation()" />
+</div>

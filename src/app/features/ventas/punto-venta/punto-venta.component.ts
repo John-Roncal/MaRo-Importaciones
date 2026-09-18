@@ -7,17 +7,19 @@ import { ProductoService } from '../../../core/services/producto.service';
 import { VentaService } from '../../../core/services/venta.service';
 import { PrinterService } from '../../../core/services/printer.service';
 import { BarcodeScannerComponent } from '../../../shared/barcode-scanner/barcode-scanner.component';
+import { ImageLightboxComponent } from '../../../shared/image-lightbox/image-lightbox.component';
 
 @Component({
   selector: 'app-punto-venta',
   standalone: true,
-  imports: [CommonModule, FormsModule, BarcodeScannerComponent],
+  imports: [CommonModule, FormsModule, BarcodeScannerComponent, ImageLightboxComponent],
   templateUrl: './punto-venta.component.html',
   styleUrl: './punto-venta.component.scss'
 })
 export class PuntoVentaComponent implements OnInit {
   productos: Producto[] = [];
   busqueda = '';
+  imagenAmpliada: string | null = null;
   carrito: ItemCarrito[] = [];
   ticketItems: ItemCarrito[] = [];
 
@@ -92,6 +94,11 @@ export class PuntoVentaComponent implements OnInit {
 
   abrirScanner() {
     this.mostrarScanner = true;
+  }
+
+  verImagenAmpliada(p: Producto, event: Event) {
+    event.stopPropagation(); // no debe agregar el producto al carrito al ampliar la foto
+    if (p.imagen_base64) this.imagenAmpliada = p.imagen_base64;
   }
 
   onCodigoDetectado(codigo: string) {

@@ -33,7 +33,7 @@
 
     <div class="tabla__fila" *ngFor="let p of productosFiltrados">
       <div class="tabla__producto">
-        <div class="tabla__miniatura">
+        <div class="tabla__miniatura" [class.clicable]="p.imagen_base64" (click)="verImagenAmpliada(p, $event)">
           <img *ngIf="p.imagen_base64" [src]="p.imagen_base64" alt="" />
           <span *ngIf="!p.imagen_base64" class="tabla__miniatura-vacia">—</span>
         </div>
@@ -80,3 +80,9 @@
   [producto]="productoParaHistorial"
   (cerrar)="mostrarHistorial = false"
 ></app-historial-movimientos-dialog>
+
+<app-image-lightbox
+  *ngIf="imagenAmpliada"
+  [src]="imagenAmpliada"
+  (cerrar)="imagenAmpliada = null"
+></app-image-lightbox>

@@ -6,13 +6,14 @@ import { ProductoService } from '../../../core/services/producto.service';
 import { ProductoFormComponent } from '../producto-form/producto-form.component';
 import { AjusteStockDialogComponent } from '../ajuste-stock-dialog/ajuste-stock-dialog.component';
 import { HistorialMovimientosDialogComponent } from '../historial-movimientos-dialog/historial-movimientos-dialog.component';
+import { ImageLightboxComponent } from '../../../shared/image-lightbox/image-lightbox.component';
 
 type EstadoStock = 'ok' | 'bajo' | 'agotado';
 
 @Component({
   selector: 'app-producto-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductoFormComponent, AjusteStockDialogComponent, HistorialMovimientosDialogComponent],
+  imports: [CommonModule, FormsModule, ProductoFormComponent, AjusteStockDialogComponent, HistorialMovimientosDialogComponent, ImageLightboxComponent],
   templateUrl: './producto-list.component.html',
   styleUrl: './producto-list.component.scss'
 })
@@ -30,6 +31,8 @@ export class ProductoListComponent implements OnInit {
 
   mostrarHistorial = false;
   productoParaHistorial: Producto | null = null;
+
+  imagenAmpliada: string | null = null;
 
   constructor(private productoService: ProductoService) {}
 
@@ -87,6 +90,11 @@ export class ProductoListComponent implements OnInit {
   abrirHistorial(p: Producto) {
     this.productoParaHistorial = p;
     this.mostrarHistorial = true;
+  }
+
+  verImagenAmpliada(p: Producto, event: Event) {
+    event.stopPropagation();
+    if (p.imagen_base64) this.imagenAmpliada = p.imagen_base64;
   }
 
   onGuardado() {

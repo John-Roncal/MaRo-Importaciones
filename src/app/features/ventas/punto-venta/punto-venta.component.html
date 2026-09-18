@@ -12,7 +12,7 @@
     </div>
     <ul class="pos__resultados" *ngIf="resultados.length > 0">
       <li *ngFor="let p of resultados" (click)="agregarAlCarrito(p)">
-        <div class="pos__resultado-miniatura">
+        <div class="pos__resultado-miniatura" [class.clicable]="p.imagen_base64" (click)="verImagenAmpliada(p, $event)">
           <img *ngIf="p.imagen_base64" [src]="p.imagen_base64" alt="" />
           <span *ngIf="!p.imagen_base64" class="pos__resultado-miniatura-vacia">—</span>
         </div>
@@ -99,3 +99,9 @@
   (detectado)="onCodigoDetectado($event)"
   (cerrar)="mostrarScanner = false"
 ></app-barcode-scanner>
+
+<app-image-lightbox
+  *ngIf="imagenAmpliada"
+  [src]="imagenAmpliada"
+  (cerrar)="imagenAmpliada = null"
+></app-image-lightbox>
