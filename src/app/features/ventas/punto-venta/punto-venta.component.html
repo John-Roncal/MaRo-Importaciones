@@ -12,6 +12,10 @@
     </div>
     <ul class="pos__resultados" *ngIf="resultados.length > 0">
       <li *ngFor="let p of resultados" (click)="agregarAlCarrito(p)">
+        <div class="pos__resultado-miniatura">
+          <img *ngIf="p.imagen_base64" [src]="p.imagen_base64" alt="" />
+          <span *ngIf="!p.imagen_base64" class="pos__resultado-miniatura-vacia">—</span>
+        </div>
         <div class="pos__resultado-info">
           <span class="pos__resultado-nombre">{{ p.nombre }}</span>
           <span class="pos__resultado-stock">Stock: {{ p.stock_actual ?? 0 }} {{ p.unidad_medida }}</span>

@@ -4,6 +4,7 @@ export interface Producto {
   nombre: string;
   codigo_barras?: string | null;
   categoria_id?: string | null;
+  imagen_base64?: string | null;
   precio_compra: number;
   precio_venta: number;
   stock_actual?: number;   // solo lectura: lo mantiene el trigger de la BD

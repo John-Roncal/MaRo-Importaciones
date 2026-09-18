@@ -33,8 +33,14 @@
 
     <div class="tabla__fila" *ngFor="let p of productosFiltrados">
       <div class="tabla__producto">
-        <span class="tabla__nombre">{{ p.nombre }}</span>
-        <span class="tabla__codigo" *ngIf="p.codigo_barras">{{ p.codigo_barras }}</span>
+        <div class="tabla__miniatura">
+          <img *ngIf="p.imagen_base64" [src]="p.imagen_base64" alt="" />
+          <span *ngIf="!p.imagen_base64" class="tabla__miniatura-vacia">—</span>
+        </div>
+        <div class="tabla__producto-texto">
+          <span class="tabla__nombre">{{ p.nombre }}</span>
+          <span class="tabla__codigo" *ngIf="p.codigo_barras">{{ p.codigo_barras }}</span>
+        </div>
       </div>
       <span class="num">S/ {{ p.precio_compra.toFixed(2) }}</span>
       <span class="num">S/ {{ p.precio_venta.toFixed(2) }}</span>

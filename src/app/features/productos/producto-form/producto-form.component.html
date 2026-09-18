@@ -6,6 +6,22 @@
   </header>
 
   <form [formGroup]="form" (ngSubmit)="guardar()" class="drawer__form">
+    <div class="campo-imagen">
+      <div class="campo-imagen__preview">
+        <img *ngIf="imagenBase64" [src]="imagenBase64" alt="Foto del producto" />
+        <span *ngIf="!imagenBase64" class="campo-imagen__sin-foto">Sin foto</span>
+      </div>
+      <div class="campo-imagen__acciones">
+        <label class="btn-secundario btn-archivo">
+          {{ imagenBase64 ? 'Cambiar foto' : 'Agregar foto' }}
+          <input type="file" accept="image/png, image/jpeg" (change)="onImagenSeleccionada($event)" hidden />
+        </label>
+        <button type="button" class="btn-texto" *ngIf="imagenBase64" (click)="quitarImagen()">Quitar</button>
+      </div>
+      <small class="campo-ayuda">Opcional — ayuda a identificar el producto en el listado y al vender.</small>
+      <small class="campo-error" *ngIf="errorImagen">{{ errorImagen }}</small>
+    </div>
+
     <label>
       Nombre
       <input type="text" formControlName="nombre" placeholder="Ej. Arroz Costeño 5kg" />

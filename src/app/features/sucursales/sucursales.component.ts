@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Sucursal } from '../../models/models';
 import { SucursalService } from '../../core/services/sucursal.service';
+import { redimensionarImagenABase64 } from '../../shared/utils/image-utils';
 
 @Component({
   selector: 'app-sucursales',
@@ -23,7 +24,7 @@ export class SucursalesComponent {
     if (!archivo) return;
 
     try {
-      sucursal.logo_base64 = await this.redimensionarImagen(archivo, 300);
+      sucursal.logo_base64 = await redimensionarImagenABase64(archivo, 300, 'image/png');
     } catch {
       this.error = 'No se pudo procesar esa imagen. Prueba con otro archivo (PNG o JPG).';
     }
@@ -46,35 +47,5 @@ export class SucursalesComponent {
     } finally {
       this.guardandoId = null;
     }
-  }
-
-  // Redimensiona la imagen a un ancho máximo antes de guardarla — no hace
-  // falta un logo enorme para un ticket de 58mm, y así no infla la base de datos.
-  private redimensionarImagen(archivo: File, anchoMax: number): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const lector = new FileReader();
-      lector.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          const escala = Math.min(1, anchoMax / img.width);
-          const ancho = Math.round(img.width * escala);
-          const alto = Math.round(img.height * escala);
-          const canvas = document.createElement('canvas');
-          canvas.width = ancho;
-          canvas.height = alto;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('No se pudo procesar la imagen'));
-            return;
-          }
-          ctx.drawImage(img, 0, 0, ancho, alto);
-          resolve(canvas.toDataURL('image/png'));
-        };
-        img.onerror = () => reject(new Error('Imagen inválida'));
-        img.src = lector.result as string;
-      };
-      lector.onerror = () => reject(new Error('No se pudo leer el archivo'));
-      lector.readAsDataURL(archivo);
-    });
   }
 }
