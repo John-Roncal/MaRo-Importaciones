@@ -171,3 +171,57 @@
 
   &:hover { border-color: var(--color-ink); }
 }
+
+.camara-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.camara-panel {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.camara-panel__header,
+.camara-panel__acciones {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.camara-panel__header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.camara-panel__vista {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  margin: 12px 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #000;
+  color: white;
+  text-align: center;
+
+  video {
+    width: 100%;
+    display: block;
+  }
+
+  .campo-error { padding: 16px; }
+}
+
+.camara-panel__acciones { justify-content: flex-end; }

@@ -13,12 +13,13 @@
       </div>
       <div class="campo-imagen__acciones">
         <label class="btn-secundario btn-archivo">
-          {{ imagenBase64 ? 'Cambiar foto' : 'Agregar foto' }}
+          {{ imagenBase64 ? 'Cambiar desde archivos' : 'Agregar desde archivos' }}
           <input type="file" accept="image/png, image/jpeg" (change)="onImagenSeleccionada($event)" hidden />
         </label>
+        <button type="button" class="btn-secundario" (click)="abrirCamara()">Tomar foto</button>
         <button type="button" class="btn-texto" *ngIf="imagenBase64" (click)="quitarImagen()">Quitar</button>
       </div>
-      <small class="campo-ayuda">Opcional — ayuda a identificar el producto en el listado y al vender.</small>
+      <small class="campo-ayuda">Opcional — puedes elegir una imagen o tomar una foto con la cámara del dispositivo.</small>
       <small class="campo-error" *ngIf="errorImagen">{{ errorImagen }}</small>
     </div>
 
@@ -85,6 +86,28 @@
     </div>
   </form>
 </aside>
+
+<div class="camara-backdrop" *ngIf="mostrarCamara">
+  <section class="camara-panel" role="dialog" aria-modal="true" aria-label="Tomar foto del producto">
+    <header class="camara-panel__header">
+      <h2>Tomar foto</h2>
+      <button type="button" class="btn-icono" (click)="cerrarCamara()" aria-label="Cerrar cámara">✕</button>
+    </header>
+
+    <div class="camara-panel__vista">
+      <video #videoCamara autoplay playsinline [hidden]="iniciandoCamara || errorCamara"></video>
+      <span *ngIf="iniciandoCamara">Activando cámara…</span>
+      <p class="campo-error" *ngIf="errorCamara">{{ errorCamara }}</p>
+    </div>
+
+    <div class="camara-panel__acciones">
+      <button type="button" class="btn-secundario" (click)="cerrarCamara()">Cancelar</button>
+      <button type="button" class="btn-primario" (click)="tomarFoto()" [disabled]="iniciandoCamara || !!errorCamara">
+        Capturar foto
+      </button>
+    </div>
+  </section>
+</div>
 
 <app-barcode-scanner
   *ngIf="mostrarScanner"
