@@ -23,12 +23,38 @@ export class MovimientoService {
     return this.registrar({ producto_id: productoId, tipo: 'INGRESO', cantidad, motivo });
   }
 
-  registrarSalida(productoId: string, cantidad: number, motivo = 'venta') {
-    return this.registrar({ producto_id: productoId, tipo: 'SALIDA', cantidad, motivo });
+  // Ahora sale por FEFO/FIFO de un lote real (ver fn_registrar_salida_manual),
+  // en vez de insertar el movimiento directo -- así nunca se desalinea
+  // productos.stock_actual con la suma real de los lotes.
+  async registrarSalida(productoId: string, cantidad: number, motivo = 'merma'): Promise<void> {
+    const { error } = await this.supabase.client.rpc('fn_registrar_salida_manual', {
+      p_producto_id: productoId,
+      p_cantidad: cantidad,
+      p_motivo: motivo
+    });
+    if (error) {
+      if (error.message?.includes('Stock insuficiente')) {
+        throw new Error('No hay suficiente stock para esta salida.');
+      }
+      throw new Error('No se pudo registrar la salida.');
+    }
   }
 
-  registrarAjuste(productoId: string, nuevoStock: number, motivo = 'ajuste_manual') {
-    return this.registrar({ producto_id: productoId, tipo: 'AJUSTE', cantidad: nuevoStock, motivo });
+  // El ajuste por conteo físico solo se permite si el producto tiene un
+  // único lote activo (ver fn_registrar_ajuste_manual); si tiene varios,
+  // la función rechaza el ajuste con un mensaje claro.
+  async registrarAjuste(productoId: string, nuevoStock: number, motivo = 'conteo_fisico'): Promise<void> {
+    const { error } = await this.supabase.client.rpc('fn_registrar_ajuste_manual', {
+      p_producto_id: productoId,
+      p_nuevo_stock: nuevoStock,
+      p_motivo: motivo
+    });
+    if (error) {
+      if (error.message?.includes('más de un lote activo')) {
+        throw new Error('Este producto tiene varios lotes activos; el ajuste manual no puede elegir cuál corregir todavía.');
+      }
+      throw new Error('No se pudo registrar el ajuste.');
+    }
   }
 
   async historialPorProducto(productoId: string): Promise<MovimientoInventario[]> {

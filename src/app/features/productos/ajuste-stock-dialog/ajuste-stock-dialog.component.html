@@ -11,13 +11,13 @@
   </p>
 
   <div class="dialogo__tipo">
-    <button type="button" [class.activo]="tipo === 'INGRESO'" (click)="tipo = 'INGRESO'">Ingreso</button>
     <button type="button" [class.activo]="tipo === 'SALIDA'" (click)="tipo = 'SALIDA'">Salida</button>
+    <button type="button" [class.activo]="tipo === 'AJUSTE'" (click)="tipo = 'AJUSTE'">Ajuste</button>
   </div>
 
   <label>
-    Cantidad
-    <input type="number" min="1" [(ngModel)]="cantidad" />
+    {{ tipo === 'AJUSTE' ? 'Nuevo stock total (después de contar)' : 'Cantidad que sale' }}
+    <input type="number" min="0" [(ngModel)]="cantidad" />
   </label>
 
   <label>
