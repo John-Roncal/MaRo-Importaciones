@@ -1,0 +1,73 @@
+<section class="ingreso-page">
+  <h1>Registrar ingreso de mercadería</h1>
+
+  <p class="campo-error" *ngIf="error" role="alert">{{ error }}</p>
+  <p class="campo-exito" *ngIf="exito">{{ exito }}</p>
+
+  <div class="ingreso-buscar" *ngIf="!productoSeleccionado">
+    <div class="ingreso-buscar__fila">
+      <input
+        type="search"
+        placeholder="Buscar producto por nombre o código de barras"
+        [(ngModel)]="busqueda"
+        aria-label="Buscar producto"
+      />
+      <button type="button" class="btn-secundario" (click)="abrirScanner()">📷 Escanear</button>
+    </div>
+
+    <p class="ingreso-buscar__cargando" *ngIf="cargandoCatalogo">Cargando catálogo…</p>
+
+    <ul class="ingreso-resultados" *ngIf="!cargandoCatalogo && resultados.length > 0">
+      <li *ngFor="let p of resultados" (click)="seleccionarProducto(p)">
+        <span class="ingreso-resultados__nombre">{{ p.nombre }}</span>
+        <span class="num">Stock actual: {{ p.stock_actual ?? 0 }} {{ p.unidad_medida }}</span>
+      </li>
+    </ul>
+
+    <p class="ingreso-buscar__ayuda" *ngIf="!cargandoCatalogo && busqueda && resultados.length === 0">
+      No se encontró ningún producto con ese nombre o código.
+    </p>
+  </div>
+
+  <div class="ingreso-form" *ngIf="productoSeleccionado">
+    <div class="ingreso-form__producto">
+      <div>
+        <strong>{{ productoSeleccionado.nombre }}</strong>
+        <span class="ingreso-form__stock">Stock actual: {{ productoSeleccionado.stock_actual ?? 0 }} {{ productoSeleccionado.unidad_medida }}</span>
+      </div>
+      <button type="button" class="btn-texto" (click)="quitarSeleccion()">Cambiar producto</button>
+    </div>
+
+    <label>
+      Cantidad recibida
+      <input type="number" min="1" step="1" [(ngModel)]="cantidad" />
+    </label>
+
+    <div class="ingreso-form__fila">
+      <label>
+        Fecha de ingreso
+        <input type="date" [(ngModel)]="fechaIngreso" />
+      </label>
+      <label>
+        Fecha de vencimiento (opcional)
+        <input type="date" [(ngModel)]="fechaVencimiento" />
+      </label>
+    </div>
+
+    <label>
+      Precio de compra de este lote (S/)
+      <input type="number" min="0" step="0.01" [(ngModel)]="precioCompra" />
+    </label>
+    <small class="campo-ayuda">Se prellena con el último precio registrado, pero puedes ajustarlo si esta compra costó distinto.</small>
+
+    <button type="button" class="btn-primario" [disabled]="guardando" (click)="registrar()">
+      {{ guardando ? 'Registrando…' : 'Registrar ingreso' }}
+    </button>
+  </div>
+</section>
+
+<app-barcode-scanner
+  *ngIf="mostrarScanner"
+  (detectado)="onCodigoDetectado($event)"
+  (cerrar)="mostrarScanner = false"
+></app-barcode-scanner>

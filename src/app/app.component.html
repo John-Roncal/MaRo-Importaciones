@@ -18,6 +18,7 @@
   <nav class="nav__links">
     <a routerLink="/vender" routerLinkActive="activo">Vender</a>
     <a routerLink="/inventario" routerLinkActive="activo" *ngIf="authService.esAdmin">Inventario</a>
+    <a routerLink="/ingreso-mercaderia" routerLinkActive="activo" *ngIf="authService.esAdmin">Ingreso</a>
     <a routerLink="/dashboard" routerLinkActive="activo" *ngIf="authService.esAdmin">Reportes</a>
     <a routerLink="/historial-ventas" routerLinkActive="activo" *ngIf="authService.esAdmin">Historial</a>
     <a routerLink="/sucursales" routerLinkActive="activo" *ngIf="authService.esAdmin">Sucursales</a>

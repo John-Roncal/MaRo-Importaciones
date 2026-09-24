@@ -18,6 +18,14 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'ingreso-mercaderia',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/productos/ingreso-mercaderia/ingreso-mercaderia.component').then(
+        m => m.IngresoMercaderiaComponent
+      )
+  },
+  {
     path: 'vender',
     canActivate: [authGuard],
     loadComponent: () =>
