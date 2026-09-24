@@ -139,6 +139,15 @@
 .campo-alerta { color: var(--color-warning); font-size: 0.8rem; margin-top: -8px; }
 .campo-ayuda { color: var(--color-ink-muted); font-size: 0.75rem; }
 
+.campo-ayuda--destacada {
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .drawer__acciones {
   display: flex;
   justify-content: flex-end;

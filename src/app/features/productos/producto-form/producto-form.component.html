@@ -70,11 +70,10 @@
       </label>
     </div>
 
-    <label *ngIf="!esEdicion">
-      Stock inicial
-      <input type="number" step="1" formControlName="stock_inicial" />
-      <small class="campo-ayuda">Se registrará automáticamente como un ingreso de inventario.</small>
-    </label>
+    <p class="campo-ayuda campo-ayuda--destacada" *ngIf="!esEdicion">
+      Este producto se crea con 0 de stock. Después de guardar, carga la cantidad desde
+      "Registrar ingreso de mercadería" (ahí también indicas fecha de vencimiento, si aplica).
+    </p>
 
     <p class="campo-error" *ngIf="errorGeneral">{{ errorGeneral }}</p>
 

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Producto } from '../../../models/models';
 import { ProductoService } from '../../../core/services/producto.service';
-import { MovimientoService } from '../../../core/services/movimiento.service';
 import { BarcodeScannerComponent } from '../../../shared/barcode-scanner/barcode-scanner.component';
 import { redimensionarImagenABase64 } from '../../../shared/utils/image-utils';
 
@@ -37,31 +36,31 @@ export class ProductoFormComponent implements OnChanges, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private productoService: ProductoService,
-    private movimientoService: MovimientoService
+    private productoService: ProductoService
   ) {
+    // precio_compra queda como "costo de referencia" del catálogo -- el
+    // costo REAL de cada compra se registra por lote en "Registrar ingreso".
+    // El stock ya no se pide aquí: todo producto nace en 0 y se carga
+    // siempre desde esa pantalla, sea la primera vez o la enésima.
     this.form = this.fb.group({
       nombre: ['', Validators.required],
       codigo_barras: [''],
       precio_compra: [0, [Validators.required, Validators.min(0)]],
       precio_venta: [0, [Validators.required, Validators.min(0)]],
       stock_minimo: [0, [Validators.required, Validators.min(0)]],
-      unidad_medida: ['unidad', Validators.required],
-      stock_inicial: [0, [Validators.min(0)]]
+      unidad_medida: ['unidad', Validators.required]
     });
   }
 
   ngOnChanges() {
     if (this.producto) {
       this.form.patchValue(this.producto);
-      this.form.get('stock_inicial')?.disable();
       this.imagenBase64 = this.producto.imagen_base64 ?? null;
     } else {
       this.form.reset({
         nombre: '', codigo_barras: '', precio_compra: 0, precio_venta: 0,
-        stock_minimo: 0, unidad_medida: 'unidad', stock_inicial: 0
+        stock_minimo: 0, unidad_medida: 'unidad'
       });
-      this.form.get('stock_inicial')?.enable();
       this.imagenBase64 = null;
     }
     this.errorImagen = '';
@@ -176,17 +175,14 @@ export class ProductoFormComponent implements OnChanges, OnDestroy {
     this.guardando = true;
     this.errorGeneral = '';
     try {
-      const { stock_inicial, ...datos } = this.form.getRawValue();
+      const datos = this.form.getRawValue();
       datos.codigo_barras = datos.codigo_barras?.trim() ? datos.codigo_barras.trim() : null;
       datos.imagen_base64 = this.imagenBase64;
 
       if (this.esEdicion && this.producto?.id) {
         await this.productoService.actualizar(this.producto.id, datos);
       } else {
-        const creado = await this.productoService.crear(datos);
-        if (stock_inicial > 0 && creado.id) {
-          await this.movimientoService.registrarIngreso(creado.id, stock_inicial, 'stock_inicial');
-        }
+        await this.productoService.crear(datos);
       }
       this.guardado.emit();
     } catch {
