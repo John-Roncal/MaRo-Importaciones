@@ -51,9 +51,41 @@ export class ProductoService {
     return data;
   }
 
+  // Crea el producto y, si se indica cantidad, su primer lote -- en una
+  // sola transacción en la base de datos (fn_crear_producto_con_lote).
+  async crearConLote(datos: {
+    nombre: string;
+    codigo_barras: string | null;
+    imagen_base64: string | null;
+    precio_compra: number;
+    precio_venta: number;
+    stock_minimo: number;
+    unidad_medida: string;
+    cantidad_inicial: number | null;
+    fecha_ingreso: string;
+    fecha_vencimiento: string | null;
+  }): Promise<string> {
+    const { data, error } = await this.supabase.client.rpc('fn_crear_producto_con_lote', {
+      p_sucursal_id: this.sucursalId,
+      p_nombre: datos.nombre,
+      p_codigo_barras: datos.codigo_barras,
+      p_imagen_base64: datos.imagen_base64,
+      p_precio_compra: datos.precio_compra,
+      p_precio_venta: datos.precio_venta,
+      p_stock_minimo: datos.stock_minimo,
+      p_unidad_medida: datos.unidad_medida,
+      p_cantidad_inicial: datos.cantidad_inicial,
+      p_fecha_ingreso: datos.fecha_ingreso,
+      p_fecha_vencimiento: datos.fecha_vencimiento
+    });
+    if (error) throw new Error('No se pudo crear el producto.');
+    return data as string;
+  }
+
   async actualizar(id: string, cambios: Partial<Producto>): Promise<Producto> {
-    // Nunca incluir stock_actual ni sucursal_id aquí: no se editan por esta vía
-    const { stock_actual, sucursal_id, ...resto } = cambios;
+    // Nunca incluir stock_actual, sucursal_id ni precio_compra aquí: el
+    // costo real vive en los lotes, no se edita desde el catálogo.
+    const { stock_actual, sucursal_id, precio_compra, ...resto } = cambios;
     const { data, error } = await this.supabase.client
       .from('productos')
       .update(resto)

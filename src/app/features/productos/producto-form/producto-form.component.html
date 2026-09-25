@@ -40,7 +40,7 @@
     </label>
 
     <div class="drawer__fila">
-      <label>
+      <label *ngIf="!esEdicion">
         Precio de compra (S/)
         <input type="number" step="0.01" formControlName="precio_compra" />
       </label>
@@ -49,7 +49,7 @@
         <input type="number" step="0.01" formControlName="precio_venta" />
       </label>
     </div>
-    <small class="campo-alerta" *ngIf="margenNegativo">
+    <small class="campo-alerta" *ngIf="!esEdicion && margenNegativo">
       El precio de venta no supera al de compra: este producto no generará ganancia.
     </small>
 
@@ -70,10 +70,25 @@
       </label>
     </div>
 
-    <p class="campo-ayuda campo-ayuda--destacada" *ngIf="!esEdicion">
-      Este producto se crea con 0 de stock. Después de guardar, carga la cantidad desde
-      "Registrar ingreso de mercadería" (ahí también indicas fecha de vencimiento, si aplica).
-    </p>
+    <ng-container *ngIf="!esEdicion">
+      <div class="drawer__fila">
+        <label>
+          Cantidad inicial (opcional)
+          <input type="number" min="0" step="1" formControlName="cantidad_inicial" />
+        </label>
+        <label>
+          Fecha de ingreso
+          <input type="date" formControlName="fecha_ingreso" />
+        </label>
+      </div>
+      <label>
+        Fecha de vencimiento (opcional)
+        <input type="date" formControlName="fecha_vencimiento" />
+      </label>
+      <small class="campo-ayuda">
+        Si dejas la cantidad en 0, el producto se crea sin stock — podrás cargarlo después desde "Registrar ingreso de mercadería".
+      </small>
+    </ng-container>
 
     <p class="campo-error" *ngIf="errorGeneral">{{ errorGeneral }}</p>
 
