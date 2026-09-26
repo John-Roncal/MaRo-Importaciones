@@ -97,6 +97,32 @@ export class ProductoListComponent implements OnInit {
     if (p.imagen_base64) this.imagenAmpliada = p.imagen_base64;
   }
 
+  async eliminarProducto(p: Producto) {
+    const confirmado = confirm(`¿Eliminar "${p.nombre}"? Esta acción no se puede deshacer.`);
+    if (!confirmado) return;
+
+    try {
+      await this.productoService.eliminar(p.id!);
+      await this.cargar();
+    } catch (e: any) {
+      if (e?.message?.includes('ya tiene ventas registradas')) {
+        const desactivar = confirm(
+          `"${p.nombre}" ya tiene ventas registradas, así que no se puede eliminar sin perder ese historial.\n\n¿Quieres desactivarlo en su lugar? Dejará de aparecer en las listas, pero no se pierde ningún dato.`
+        );
+        if (desactivar) {
+          try {
+            await this.productoService.desactivar(p.id!);
+            await this.cargar();
+          } catch {
+            this.error = 'No se pudo desactivar el producto.';
+          }
+        }
+      } else {
+        this.error = 'No se pudo eliminar el producto.';
+      }
+    }
+  }
+
   onGuardado() {
     this.mostrarFormulario = false;
     this.cargar();

@@ -103,4 +103,14 @@ export class ProductoService {
       .eq('id', id);
     if (error) throw error;
   }
+
+  // Elimina de verdad el producto (y sus lotes/movimientos). Si ya tiene
+  // ventas registradas, la función de la base de datos rechaza el borrado
+  // -- en ese caso, el componente que llama esto debe ofrecer desactivar().
+  async eliminar(id: string): Promise<void> {
+    const { error } = await this.supabase.client.rpc('fn_eliminar_producto', {
+      p_producto_id: id
+    });
+    if (error) throw new Error(error.message);
+  }
 }

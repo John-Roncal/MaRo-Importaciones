@@ -216,6 +216,11 @@
   }
 }
 
+.btn-icono--peligro:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
 .fab {
   position: fixed;
   bottom: 24px;
