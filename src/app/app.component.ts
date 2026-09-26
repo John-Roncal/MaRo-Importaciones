@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
@@ -13,6 +13,7 @@ import { SucursalService } from './core/services/sucursal.service';
 })
 export class AppComponent implements OnInit {
   title = 'MaRoImportacion';
+  menuAbierto = false;
 
   constructor(
     public authService: AuthService,
@@ -27,11 +28,26 @@ export class AppComponent implements OnInit {
   }
 
   cambiarSucursal(id: string) {
+    this.cerrarMenu();
     this.sucursalService.establecerSucursalActiva(id);
     window.location.reload();
   }
 
+  alternarMenu() {
+    this.menuAbierto = !this.menuAbierto;
+  }
+
+  cerrarMenu() {
+    this.menuAbierto = false;
+  }
+
+  @HostListener('document:keydown.escape')
+  alPresionarEscape() {
+    this.cerrarMenu();
+  }
+
   async salir() {
+    this.cerrarMenu();
     await this.authService.logout();
     this.router.navigateByUrl('/login');
   }

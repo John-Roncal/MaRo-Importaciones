@@ -1,30 +1,41 @@
-<header class="nav" *ngIf="authService.estaAutenticado">
-  <span class="nav__marca">Ma-Ro Importaciones & Abarrotes</span>
+<header class="nav" [class.nav--abierto]="menuAbierto" *ngIf="authService.estaAutenticado">
+  <div class="nav__cabecera">
+    <a class="nav__marca" routerLink="/vender" (click)="cerrarMenu()" aria-label="Ir al punto de venta">
+      <span class="nav__marca-acento">Ma-Ro</span>
+      <span>Importaciones</span>
+    </a>
 
-  <select
-    class="nav__sucursal"
-    *ngIf="sucursalService.sucursales.length > 1"
-    [ngModel]="sucursalService.sucursalActivaId"
-    (ngModelChange)="cambiarSucursal($event)"
-    aria-label="Sucursal activa"
-  >
-    <option *ngFor="let s of sucursalService.sucursales" [value]="s.id">{{ s.nombre_comercial }}</option>
-  </select>
+    <button type="button" class="nav__menu" (click)="alternarMenu()" [attr.aria-expanded]="menuAbierto" aria-controls="menu-principal">
+      <span class="nav__menu-icono" aria-hidden="true">{{ menuAbierto ? '✕' : '☰' }}</span>
+      <span>{{ menuAbierto ? 'Cerrar' : 'Menú' }}</span>
+    </button>
+  </div>
 
-  <span class="nav__sucursal-fija" *ngIf="sucursalService.sucursales.length === 1">
-    {{ sucursalService.sucursales[0].nombre_comercial }}
-  </span>
+  <div class="nav__contenido" id="menu-principal">
+    <div class="nav__contexto">
+      <span class="nav__etiqueta">Sucursal activa</span>
+      <select class="nav__sucursal" *ngIf="sucursalService.sucursales.length > 1" [ngModel]="sucursalService.sucursalActivaId" (ngModelChange)="cambiarSucursal($event)" aria-label="Sucursal activa">
+        <option *ngFor="let s of sucursalService.sucursales" [value]="s.id">{{ s.nombre_comercial }}</option>
+      </select>
+      <span class="nav__sucursal-fija" *ngIf="sucursalService.sucursales.length === 1">{{ sucursalService.sucursales[0].nombre_comercial }}</span>
+    </div>
 
-  <nav class="nav__links">
-    <a routerLink="/vender" routerLinkActive="activo">Vender</a>
-    <a routerLink="/inventario" routerLinkActive="activo" *ngIf="authService.esAdmin">Inventario</a>
-    <a routerLink="/ingreso-mercaderia" routerLinkActive="activo" *ngIf="authService.esAdmin">Ingreso</a>
-    <a routerLink="/dashboard" routerLinkActive="activo" *ngIf="authService.esAdmin">Reportes</a>
-    <a routerLink="/historial-ventas" routerLinkActive="activo" *ngIf="authService.esAdmin">Historial</a>
-    <a routerLink="/sucursales" routerLinkActive="activo" *ngIf="authService.esAdmin">Sucursales</a>
-  </nav>
+    <nav class="nav__links" aria-label="Navegación principal">
+      <a routerLink="/vender" routerLinkActive="activo" (click)="cerrarMenu()">Vender</a>
+      <a routerLink="/inventario" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Inventario</a>
+      <a routerLink="/ingreso-mercaderia" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Ingreso</a>
+      <a routerLink="/dashboard" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Reportes</a>
+      <a routerLink="/historial-ventas" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Historial</a>
+      <a routerLink="/sucursales" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Sucursales</a>
+    </nav>
 
-  <button type="button" class="nav__salir" (click)="salir()">Salir</button>
+    <div class="nav__cuenta">
+      <span class="nav__usuario" *ngIf="authService.perfil?.nombre">{{ authService.perfil?.nombre }}</span>
+      <button type="button" class="nav__salir" (click)="salir()">Cerrar sesión</button>
+    </div>
+  </div>
 </header>
+
+<button class="nav__fondo" *ngIf="menuAbierto" type="button" aria-label="Cerrar menú" (click)="cerrarMenu()"></button>
 
 <router-outlet></router-outlet>

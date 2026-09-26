@@ -20,10 +20,13 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('MaRoImportacion');
   });
 
-  it('should render title', () => {
+  it('should toggle the mobile navigation state', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, MaRoImportacion');
+    const app = fixture.componentInstance;
+    expect(app.menuAbierto).toBeFalse();
+    app.alternarMenu();
+    expect(app.menuAbierto).toBeTrue();
+    app.cerrarMenu();
+    expect(app.menuAbierto).toBeFalse();
   });
 });
