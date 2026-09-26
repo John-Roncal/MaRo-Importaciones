@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { SucursalService } from './sucursal.service';
-import { Valorizacion, RentabilidadProducto, VentasProducto } from '../../models/bi.model';
+import { Valorizacion, RentabilidadProducto, VentasProducto, LoteSeguimiento } from '../../models/bi.model';
 
 @Injectable({ providedIn: 'root' })
 export class BiService {
@@ -42,5 +42,14 @@ export class BiService {
       .eq('sucursal_id', this.sucursalId);
     if (error) throw error;
     return data as VentasProducto[];
+  }
+
+  async obtenerLotesSeguimiento(): Promise<LoteSeguimiento[]> {
+    const { data, error } = await this.supabase.client
+      .from('v_lotes_seguimiento')
+      .select('*')
+      .eq('sucursal_id', this.sucursalId);
+    if (error) throw error;
+    return data as LoteSeguimiento[];
   }
 }

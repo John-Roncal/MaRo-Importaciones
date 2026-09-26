@@ -34,6 +34,48 @@
     </div>
 
     <div class="seccion">
+      <div class="seccion__titulo-con-umbral">
+        <h2>⏳ Por vencer</h2>
+        <label class="umbral">
+          en los próximos
+          <input type="number" min="1" [(ngModel)]="umbralVencimientoDias" />
+          días
+        </label>
+      </div>
+
+      <p class="dashboard__vacio" *ngIf="lotesPorVencer.length === 0">
+        Ningún lote vence dentro de ese rango.
+      </p>
+
+      <div class="alerta-fila" *ngFor="let l of lotesPorVencer">
+        <span class="alerta-fila__nombre">{{ l.producto_nombre }}</span>
+        <span class="num" [class.alerta-fila__urgente]="l.dias_para_vencer! <= 3">
+          {{ l.cantidad_actual }} {{ l.unidad_medida }} — vence en {{ l.dias_para_vencer }} día(s)
+        </span>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <div class="seccion__titulo-con-umbral">
+        <h2>📦 Por antigüedad</h2>
+        <label class="umbral">
+          más de
+          <input type="number" min="1" [(ngModel)]="umbralAntiguedadDias" />
+          días en inventario
+        </label>
+      </div>
+
+      <p class="dashboard__vacio" *ngIf="lotesPorAntiguedad.length === 0">
+        Ningún lote supera ese tiempo en inventario.
+      </p>
+
+      <div class="alerta-fila" *ngFor="let l of lotesPorAntiguedad">
+        <span class="alerta-fila__nombre">{{ l.producto_nombre }}</span>
+        <span class="num">{{ l.cantidad_actual }} {{ l.unidad_medida }} — {{ l.dias_en_inventario }} días en inventario</span>
+      </div>
+    </div>
+
+    <div class="seccion">
       <h2>Rentabilidad por producto (curva ABC)</h2>
 
       <p class="dashboard__vacio" *ngIf="!hayVentasRegistradas">

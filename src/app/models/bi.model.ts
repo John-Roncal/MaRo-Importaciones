@@ -39,3 +39,19 @@ export interface FilaRentabilidad extends RentabilidadProducto {
   clase: ClaseAbc;
   porcentajeAcumulado: number;
 }
+
+// Un lote con stock, con sus días de antigüedad/vencimiento ya calculados
+// (viene de v_lotes_seguimiento). dias_para_vencer es null si el lote no
+// tiene fecha de vencimiento.
+export interface LoteSeguimiento {
+  id: string;
+  producto_id: string;
+  sucursal_id: string;
+  producto_nombre: string;
+  unidad_medida: string;
+  cantidad_actual: number;
+  fecha_ingreso: string;
+  fecha_vencimiento: string | null;
+  dias_en_inventario: number;
+  dias_para_vencer: number | null;
+}

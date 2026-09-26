@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Producto } from '../../models/models';
 import { ProductoService } from '../../core/services/producto.service';
 import { BiService } from '../../core/services/bi.service';
-import { Valorizacion, FilaRentabilidad } from '../../models/bi.model';
+import { Valorizacion, FilaRentabilidad, LoteSeguimiento } from '../../models/bi.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -19,6 +20,11 @@ export class DashboardComponent implements OnInit {
   valorizacion: Valorizacion[] = [];
   filas: FilaRentabilidad[] = [];
   productosStockBajo: Producto[] = [];
+  lotesSeguimiento: LoteSeguimiento[] = [];
+
+  // Umbrales editables desde la misma pantalla -- no están fijos en el código.
+  umbralVencimientoDias = 15;
+  umbralAntiguedadDias = 30;
 
   totalInversion = 0;
   totalVentaPotencial = 0;
@@ -38,11 +44,12 @@ export class DashboardComponent implements OnInit {
     this.cargando = true;
     this.error = '';
     try {
-      const [valorizacion, rentabilidad, ventas30d, productos] = await Promise.all([
+      const [valorizacion, rentabilidad, ventas30d, productos, lotesSeguimiento] = await Promise.all([
         this.biService.obtenerValorizacion(),
         this.biService.obtenerRentabilidad(),
         this.biService.obtenerVentas30Dias(),
-        this.productoService.listar()
+        this.productoService.listar(),
+        this.biService.obtenerLotesSeguimiento()
       ]);
 
       this.valorizacion = valorizacion;
@@ -72,6 +79,7 @@ export class DashboardComponent implements OnInit {
       });
 
       this.productosStockBajo = productos.filter(p => (p.stock_actual ?? 0) <= p.stock_minimo);
+      this.lotesSeguimiento = lotesSeguimiento;
     } catch {
       this.error = 'No se pudo cargar la información de rentabilidad. Revisa tu conexión.';
     } finally {
@@ -89,5 +97,17 @@ export class DashboardComponent implements OnInit {
 
   anchoBarra(ganancia: number): number {
     return Math.max((ganancia / this.maxGanancia) * 100, 0);
+  }
+
+  get lotesPorVencer(): LoteSeguimiento[] {
+    return this.lotesSeguimiento
+      .filter(l => l.dias_para_vencer !== null && l.dias_para_vencer <= this.umbralVencimientoDias)
+      .sort((a, b) => (a.dias_para_vencer ?? 0) - (b.dias_para_vencer ?? 0));
+  }
+
+  get lotesPorAntiguedad(): LoteSeguimiento[] {
+    return this.lotesSeguimiento
+      .filter(l => l.dias_en_inventario >= this.umbralAntiguedadDias)
+      .sort((a, b) => b.dias_en_inventario - a.dias_en_inventario);
   }
 }
