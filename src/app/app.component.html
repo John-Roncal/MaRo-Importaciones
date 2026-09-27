@@ -23,7 +23,7 @@
     <nav class="nav__links" aria-label="Navegación principal">
       <a routerLink="/vender" routerLinkActive="activo" (click)="cerrarMenu()">Vender</a>
       <a routerLink="/inventario" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Inventario</a>
-      <a routerLink="/ingreso-mercaderia" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Ingreso</a>
+      <a routerLink="/ingreso-mercaderia" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Ingreso de Mercadería</a>
       <a routerLink="/dashboard" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Reportes</a>
       <a routerLink="/historial-ventas" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Historial</a>
       <a routerLink="/sucursales" routerLinkActive="activo" (click)="cerrarMenu()" *ngIf="authService.esAdmin">Sucursales</a>
