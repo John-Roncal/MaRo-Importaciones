@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { SucursalService } from './sucursal.service';
-import { Valorizacion, RentabilidadProducto, VentasProducto, LoteSeguimiento } from '../../models/bi.model';
+import { Valorizacion, RentabilidadProducto, VentasProducto, LoteSeguimiento, VentaDiaria } from '../../models/bi.model';
 
 @Injectable({ providedIn: 'root' })
 export class BiService {
@@ -51,5 +51,19 @@ export class BiService {
       .eq('sucursal_id', this.sucursalId);
     if (error) throw error;
     return data as LoteSeguimiento[];
+  }
+
+  // desde/hasta en formato 'YYYY-MM-DD'. Trae los datos diarios dentro del
+  // rango; el agrupamiento en semana/mes lo hace el componente.
+  async obtenerVentasDiarias(desde: string, hasta: string): Promise<VentaDiaria[]> {
+    const { data, error } = await this.supabase.client
+      .from('v_ventas_diarias')
+      .select('*')
+      .eq('sucursal_id', this.sucursalId)
+      .gte('fecha', desde)
+      .lte('fecha', hasta)
+      .order('fecha', { ascending: true });
+    if (error) throw error;
+    return data as VentaDiaria[];
   }
 }

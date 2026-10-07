@@ -25,6 +25,84 @@
       </div>
     </div>
 
+    <div class="seccion">
+      <h2>📈 Ingresos y ganancias en el tiempo</h2>
+
+      <div class="serie-controles">
+        <div class="segmentado" role="group" aria-label="Agrupar por">
+          <button type="button" [class.activo]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
+          <button type="button" [class.activo]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
+          <button type="button" [class.activo]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
+        </div>
+
+        <div class="serie-fechas">
+          <label>
+            Desde
+            <input type="date" [ngModel]="fechaDesde" (ngModelChange)="fechaDesde = $event; cargarSerie()" />
+          </label>
+          <label>
+            Hasta
+            <input type="date" [ngModel]="fechaHasta" (ngModelChange)="fechaHasta = $event; cargarSerie()" />
+          </label>
+        </div>
+      </div>
+
+      <p class="dashboard__error" *ngIf="errorSerie" role="alert">{{ errorSerie }}</p>
+      <p class="dashboard__cargando" *ngIf="cargandoSerie">Calculando…</p>
+
+      <ng-container *ngIf="!cargandoSerie && !errorSerie">
+        <p class="dashboard__vacio" *ngIf="serie.length === 0">
+          No hay ventas registradas en ese período.
+        </p>
+
+        <ng-container *ngIf="serie.length > 0">
+          <div class="serie-totales">
+            <div>
+              <span class="serie-totales__etiqueta">Ingresos del período</span>
+              <span class="serie-totales__valor">S/ {{ totalIngresosPeriodo.toFixed(2) }}</span>
+            </div>
+            <div>
+              <span class="serie-totales__etiqueta">Ganancia del período</span>
+              <span class="serie-totales__valor serie-totales__valor--ganancia">S/ {{ totalGananciaPeriodo.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="leyenda">
+            <span><i class="leyenda__color leyenda__color--ingresos"></i> Ingresos</span>
+            <span><i class="leyenda__color leyenda__color--ganancia"></i> Ganancia</span>
+          </div>
+
+          <div class="grafico">
+            <div
+              class="grafico__grupo"
+              *ngFor="let p of serie"
+              [attr.title]="p.etiqueta + ' — Ingresos: S/ ' + p.ingresos.toFixed(2) + ' · Ganancia: S/ ' + p.ganancia.toFixed(2)"
+            >
+              <div class="grafico__barras">
+                <div class="grafico__barra grafico__barra--ingresos" [style.height.%]="alturaBarra(p.ingresos)"></div>
+                <div class="grafico__barra grafico__barra--ganancia" [style.height.%]="alturaBarra(p.ganancia)"></div>
+              </div>
+              <span class="grafico__etiqueta">{{ p.etiqueta }}</span>
+            </div>
+          </div>
+
+          <details class="detalle-periodos">
+            <summary>Ver detalle por período</summary>
+            <div class="detalle-periodos__fila detalle-periodos__fila--encabezado">
+              <span>Período</span>
+              <span class="num">Ingresos</span>
+              <span class="num">Ganancia</span>
+            </div>
+            <div class="detalle-periodos__fila" *ngFor="let p of serie">
+              <span>{{ p.etiqueta }}</span>
+              <span class="num">S/ {{ p.ingresos.toFixed(2) }}</span>
+              <span class="num">S/ {{ p.ganancia.toFixed(2) }}</span>
+            </div>
+          </details>
+        </ng-container>
+      </ng-container>
+    </div>
+
     <div class="seccion" *ngIf="productosStockBajo.length > 0">
       <h2>⚠ Alertas de stock bajo</h2>
       <div class="alerta-fila" *ngFor="let p of productosStockBajo">
