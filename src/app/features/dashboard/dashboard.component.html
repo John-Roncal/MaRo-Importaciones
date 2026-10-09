@@ -1,195 +1,249 @@
-<section class="dashboard">
-  <h1>Panel de rentabilidad</h1>
-
-  <p class="dashboard__error" *ngIf="error" role="alert">{{ error }}</p>
-  <p class="dashboard__cargando" *ngIf="cargando">Calculando métricas…</p>
-
-  <ng-container *ngIf="!cargando && !error">
-
-    <div class="kpis">
-      <div class="kpi">
-        <span class="kpi__etiqueta">Invertido en stock</span>
-        <span class="kpi__valor">S/ {{ totalInversion.toFixed(2) }}</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi__etiqueta">Venta potencial del stock</span>
-        <span class="kpi__valor">S/ {{ totalVentaPotencial.toFixed(2) }}</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi__etiqueta">Ganancia potencial (si se vende todo)</span>
-        <span class="kpi__valor">S/ {{ gananciaPotencial.toFixed(2) }}</span>
-      </div>
-      <div class="kpi kpi--real">
-        <span class="kpi__etiqueta">Ganancia real acumulada</span>
-        <span class="kpi__valor">S/ {{ gananciaReal.toFixed(2) }}</span>
-      </div>
+<main class="dashboard">
+  <header class="dashboard__cabecera">
+    <div>
+      <span class="dashboard__sobrelinea">Resumen del negocio</span>
+      <h1>Panel de rentabilidad</h1>
+      <p>Ventas, inventario y alertas importantes en un solo lugar.</p>
     </div>
 
-    <div class="seccion">
-      <h2>📈 Ingresos y ganancias en el tiempo</h2>
+    <div class="dashboard__actualizacion">
+      <span aria-live="polite">{{ textoUltimaActualizacion }}</span>
+      <button type="button" class="btn-actualizar" (click)="recargar()" [disabled]="cargando || cargandoSerie">
+        <span aria-hidden="true">↻</span>
+        {{ cargando || cargandoSerie ? 'Actualizando…' : 'Actualizar' }}
+      </button>
+    </div>
+  </header>
 
-      <div class="serie-controles">
-        <div class="segmentado" role="group" aria-label="Agrupar por">
-          <button type="button" [class.activo]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
-          <button type="button" [class.activo]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
-          <button type="button" [class.activo]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
-        </div>
+  <nav class="dashboard__atajos" aria-label="Secciones del panel">
+    <a href="#resumen">Resumen</a>
+    <a href="#ventas">Ventas</a>
+    <a href="#alertas">Alertas</a>
+    <a href="#rentabilidad">Rentabilidad</a>
+  </nav>
 
-        <div class="serie-fechas">
-          <label>
-            Desde
-            <input type="date" [ngModel]="fechaDesde" (ngModelChange)="fechaDesde = $event; cargarSerie()" />
-          </label>
-          <label>
-            Hasta
-            <input type="date" [ngModel]="fechaHasta" (ngModelChange)="fechaHasta = $event; cargarSerie()" />
-          </label>
+  <div class="estado estado--error" *ngIf="error" role="alert">
+    <div>
+      <strong>No pudimos cargar el panel</strong>
+      <span>{{ error }}</span>
+    </div>
+    <button type="button" (click)="recargar()">Reintentar</button>
+  </div>
+
+  <div class="esqueleto" *ngIf="cargando && !error" role="status" aria-label="Cargando indicadores">
+    <span class="esqueleto__titulo"></span>
+    <div class="esqueleto__tarjetas">
+      <span *ngFor="let item of [1, 2, 3, 4]"></span>
+    </div>
+    <span class="esqueleto__panel"></span>
+  </div>
+
+  <ng-container *ngIf="!cargando && !error">
+    <section class="bloque-resumen" id="resumen" aria-labelledby="titulo-resumen">
+      <div class="seccion__encabezado seccion__encabezado--simple">
+        <div>
+          <span class="seccion__sobrelinea">Situación actual</span>
+          <h2 id="titulo-resumen">Resumen financiero</h2>
         </div>
       </div>
 
-      <p class="dashboard__error" *ngIf="errorSerie" role="alert">{{ errorSerie }}</p>
-      <p class="dashboard__cargando" *ngIf="cargandoSerie">Calculando…</p>
+      <div class="kpis">
+        <article class="kpi kpi--inversion">
+          <div class="kpi__cabecera"><span class="kpi__icono" aria-hidden="true">S/</span><span class="kpi__tendencia">Stock actual</span></div>
+          <span class="kpi__etiqueta">Invertido en inventario</span>
+          <strong class="kpi__valor">{{ formatearMoneda(totalInversion) }}</strong>
+          <p>Costo acumulado de los productos disponibles.</p>
+        </article>
+
+        <article class="kpi kpi--venta">
+          <div class="kpi__cabecera"><span class="kpi__icono" aria-hidden="true">↗</span><span class="kpi__tendencia">Valor proyectado</span></div>
+          <span class="kpi__etiqueta">Venta potencial</span>
+          <strong class="kpi__valor">{{ formatearMoneda(totalVentaPotencial) }}</strong>
+          <p>Ingreso estimado si se vende todo el inventario.</p>
+        </article>
+
+        <article class="kpi kpi--potencial">
+          <div class="kpi__cabecera"><span class="kpi__icono" aria-hidden="true">%</span><span class="kpi__tendencia">{{ margenPotencial.toFixed(1) }}% de margen</span></div>
+          <span class="kpi__etiqueta">Ganancia potencial</span>
+          <strong class="kpi__valor">{{ formatearMoneda(gananciaPotencial) }}</strong>
+          <p>Diferencia estimada entre venta y costo del stock.</p>
+        </article>
+
+        <article class="kpi kpi--real" [class.kpi--perdida]="gananciaReal < 0">
+          <div class="kpi__cabecera"><span class="kpi__icono" aria-hidden="true">✓</span><span class="kpi__tendencia">Resultado acumulado</span></div>
+          <span class="kpi__etiqueta">Ganancia real</span>
+          <strong class="kpi__valor">{{ formatearMoneda(gananciaReal) }}</strong>
+          <p>Ganancia confirmada por las ventas registradas.</p>
+        </article>
+      </div>
+
+      <div class="prioridades" [class.prioridades--tranquilo]="productosStockBajo.length === 0 && lotesPorVencer.length === 0 && lotesPorAntiguedad.length === 0">
+        <div class="prioridades__titulo">
+          <span class="prioridades__icono" aria-hidden="true">!</span>
+          <div><strong>Prioridades del inventario</strong><span>Revisa primero lo que requiere atención.</span></div>
+        </div>
+
+        <div class="prioridades__items" *ngIf="productosStockBajo.length || lotesPorVencer.length || lotesPorAntiguedad.length; else sinPrioridades">
+          <a href="#stock-bajo" *ngIf="productosStockBajo.length"><strong>{{ productosStockBajo.length }}</strong><span>con stock bajo</span></a>
+          <a href="#por-vencer" *ngIf="lotesPorVencer.length"><strong>{{ lotesPorVencer.length }}</strong><span>por vencer</span></a>
+          <a href="#antiguedad" *ngIf="lotesPorAntiguedad.length"><strong>{{ lotesPorAntiguedad.length }}</strong><span>lotes antiguos</span></a>
+        </div>
+
+        <ng-template #sinPrioridades>
+          <div class="prioridades__correcto"><span aria-hidden="true">✓</span> Todo está bajo control por ahora.</div>
+        </ng-template>
+      </div>
+    </section>
+
+    <section class="seccion seccion--grafico" id="ventas" aria-labelledby="titulo-ventas">
+      <div class="seccion__encabezado">
+        <div>
+          <span class="seccion__sobrelinea">Evolución comercial</span>
+          <h2 id="titulo-ventas">Ingresos y ganancias</h2>
+          <p>Compara lo vendido con la ganancia obtenida en cada período.</p>
+        </div>
+        <div class="segmentado" role="group" aria-label="Agrupar ventas por">
+          <button type="button" [class.activo]="granularidad === 'dia'" [attr.aria-pressed]="granularidad === 'dia'" (click)="cambiarGranularidad('dia')">Día</button>
+          <button type="button" [class.activo]="granularidad === 'semana'" [attr.aria-pressed]="granularidad === 'semana'" (click)="cambiarGranularidad('semana')">Semana</button>
+          <button type="button" [class.activo]="granularidad === 'mes'" [attr.aria-pressed]="granularidad === 'mes'" (click)="cambiarGranularidad('mes')">Mes</button>
+        </div>
+      </div>
+
+      <div class="serie-filtros">
+        <label><span>Desde</span><input type="date" [ngModel]="fechaDesde" (ngModelChange)="fechaDesde = $event; cargarSerie()" /></label>
+        <span class="serie-filtros__separador" aria-hidden="true">→</span>
+        <label><span>Hasta</span><input type="date" [ngModel]="fechaHasta" (ngModelChange)="fechaHasta = $event; cargarSerie()" /></label>
+      </div>
+
+      <div class="estado estado--error estado--compacto" *ngIf="errorSerie" role="alert"><span>{{ errorSerie }}</span><button type="button" (click)="cargarSerie()">Reintentar</button></div>
+      <div class="estado estado--cargando estado--compacto" *ngIf="cargandoSerie && !errorSerie" role="status"><span class="spinner" aria-hidden="true"></span> Calculando el período…</div>
 
       <ng-container *ngIf="!cargandoSerie && !errorSerie">
-        <p class="dashboard__vacio" *ngIf="serie.length === 0">
-          No hay ventas registradas en ese período.
-        </p>
+        <div class="estado estado--vacio" *ngIf="serie.length === 0">
+          <span class="estado__icono" aria-hidden="true">↗</span><strong>No hay ventas en este período</strong><span>Prueba ampliando el rango de fechas.</span>
+        </div>
 
         <ng-container *ngIf="serie.length > 0">
-          <div class="serie-totales">
-            <div>
-              <span class="serie-totales__etiqueta">Ingresos del período</span>
-              <span class="serie-totales__valor">S/ {{ totalIngresosPeriodo.toFixed(2) }}</span>
-            </div>
-            <div>
-              <span class="serie-totales__etiqueta">Ganancia del período</span>
-              <span class="serie-totales__valor serie-totales__valor--ganancia">S/ {{ totalGananciaPeriodo.toFixed(2) }}</span>
+          <div class="serie-resumen">
+            <div><span>Ingresos del período</span><strong>{{ formatearMoneda(totalIngresosPeriodo) }}</strong></div>
+            <div><span>Ganancia del período</span><strong class="texto-positivo">{{ formatearMoneda(totalGananciaPeriodo) }}</strong></div>
+            <div class="serie-resumen__leyenda" aria-label="Leyenda del gráfico">
+              <span><i class="leyenda__color leyenda__color--ingresos"></i> Ingresos</span>
+              <span><i class="leyenda__color leyenda__color--ganancia"></i> Ganancia</span>
             </div>
           </div>
 
-          <div class="leyenda">
-            <span><i class="leyenda__color leyenda__color--ingresos"></i> Ingresos</span>
-            <span><i class="leyenda__color leyenda__color--ganancia"></i> Ganancia</span>
+          <div class="periodo-seleccionado" *ngIf="serieSeleccionada" aria-live="polite">
+            <div><span>{{ serieSeleccionada.etiqueta }}</span><strong>{{ formatearMoneda(serieSeleccionada.ingresos) }} en ingresos</strong></div>
+            <div><span>Ganancia</span><strong>{{ formatearMoneda(serieSeleccionada.ganancia) }}</strong></div>
+            <button type="button" (click)="limpiarPeriodoSeleccionado()" aria-label="Cerrar detalle del período">✕</button>
           </div>
 
-          <div class="grafico">
-            <div
-              class="grafico__grupo"
-              *ngFor="let p of serie"
-              [attr.title]="p.etiqueta + ' — Ingresos: S/ ' + p.ingresos.toFixed(2) + ' · Ganancia: S/ ' + p.ganancia.toFixed(2)"
-            >
-              <div class="grafico__barras">
-                <div class="grafico__barra grafico__barra--ingresos" [style.height.%]="alturaBarra(p.ingresos)"></div>
-                <div class="grafico__barra grafico__barra--ganancia" [style.height.%]="alturaBarra(p.ganancia)"></div>
-              </div>
-              <span class="grafico__etiqueta">{{ p.etiqueta }}</span>
+          <div class="grafico-scroll" tabindex="0" aria-label="Gráfico desplazable de ventas">
+            <div class="grafico">
+              <button type="button" class="grafico__grupo" *ngFor="let p of serie"
+                [class.grafico__grupo--seleccionado]="serieSeleccionada === p"
+                [attr.aria-label]="p.etiqueta + ': ingresos ' + formatearMoneda(p.ingresos) + ', ganancia ' + formatearMoneda(p.ganancia)"
+                [attr.title]="p.etiqueta + ' — Ingresos: ' + formatearMoneda(p.ingresos) + ' · Ganancia: ' + formatearMoneda(p.ganancia)"
+                (click)="seleccionarPeriodo(p)">
+                <span class="grafico__valor">{{ formatearNumero(p.ingresos) }}</span>
+                <span class="grafico__barras">
+                  <i class="grafico__barra grafico__barra--ingresos" [style.height.%]="alturaBarra(p.ingresos)"></i>
+                  <i class="grafico__barra grafico__barra--ganancia" [style.height.%]="alturaBarra(p.ganancia)"></i>
+                </span>
+                <span class="grafico__etiqueta">{{ p.etiqueta }}</span>
+              </button>
             </div>
           </div>
+          <p class="grafico__ayuda">Selecciona una columna para ver sus importes. En móvil puedes deslizar el gráfico.</p>
 
           <details class="detalle-periodos">
-            <summary>Ver detalle por período</summary>
-            <div class="detalle-periodos__fila detalle-periodos__fila--encabezado">
-              <span>Período</span>
-              <span class="num">Ingresos</span>
-              <span class="num">Ganancia</span>
-            </div>
-            <div class="detalle-periodos__fila" *ngFor="let p of serie">
-              <span>{{ p.etiqueta }}</span>
-              <span class="num">S/ {{ p.ingresos.toFixed(2) }}</span>
-              <span class="num">S/ {{ p.ganancia.toFixed(2) }}</span>
+            <summary>Ver datos en tabla</summary>
+            <div class="detalle-periodos__contenido">
+              <div class="detalle-periodos__fila detalle-periodos__fila--encabezado"><span>Período</span><span>Ingresos</span><span>Ganancia</span></div>
+              <div class="detalle-periodos__fila" *ngFor="let p of serie"><span>{{ p.etiqueta }}</span><span>{{ formatearMoneda(p.ingresos) }}</span><span>{{ formatearMoneda(p.ganancia) }}</span></div>
             </div>
           </details>
         </ng-container>
       </ng-container>
-    </div>
+    </section>
 
-    <div class="seccion" *ngIf="productosStockBajo.length > 0">
-      <h2>⚠ Alertas de stock bajo</h2>
-      <div class="alerta-fila" *ngFor="let p of productosStockBajo">
-        <span class="alerta-fila__nombre">{{ p.nombre }}</span>
-        <span class="num">{{ p.stock_actual ?? 0 }} / mín. {{ p.stock_minimo }} {{ p.unidad_medida }}</span>
-      </div>
-    </div>
-
-    <div class="seccion">
-      <div class="seccion__titulo-con-umbral">
-        <h2>⏳ Por vencer</h2>
-        <label class="umbral">
-          en los próximos
-          <input type="number" min="1" [(ngModel)]="umbralVencimientoDias" />
-          días
-        </label>
+    <section class="grupo-alertas" id="alertas" aria-labelledby="titulo-alertas">
+      <div class="seccion__encabezado seccion__encabezado--simple">
+        <div><span class="seccion__sobrelinea">Inventario</span><h2 id="titulo-alertas">Alertas y seguimiento</h2><p>Ajusta los umbrales y atiende los casos más urgentes primero.</p></div>
       </div>
 
-      <p class="dashboard__vacio" *ngIf="lotesPorVencer.length === 0">
-        Ningún lote vence dentro de ese rango.
-      </p>
-
-      <div class="alerta-fila" *ngFor="let l of lotesPorVencer">
-        <span class="alerta-fila__nombre">{{ l.producto_nombre }}</span>
-        <span class="num" [class.alerta-fila__urgente]="l.dias_para_vencer! <= 3">
-          {{ l.cantidad_actual }} {{ l.unidad_medida }} — vence en {{ l.dias_para_vencer }} día(s)
-        </span>
-      </div>
-    </div>
-
-    <div class="seccion">
-      <div class="seccion__titulo-con-umbral">
-        <h2>📦 Por antigüedad</h2>
-        <label class="umbral">
-          más de
-          <input type="number" min="1" [(ngModel)]="umbralAntiguedadDias" />
-          días en inventario
-        </label>
-      </div>
-
-      <p class="dashboard__vacio" *ngIf="lotesPorAntiguedad.length === 0">
-        Ningún lote supera ese tiempo en inventario.
-      </p>
-
-      <div class="alerta-fila" *ngFor="let l of lotesPorAntiguedad">
-        <span class="alerta-fila__nombre">{{ l.producto_nombre }}</span>
-        <span class="num">{{ l.cantidad_actual }} {{ l.unidad_medida }} — {{ l.dias_en_inventario }} días en inventario</span>
-      </div>
-    </div>
-
-    <div class="seccion">
-      <h2>Rentabilidad por producto (curva ABC)</h2>
-
-      <p class="dashboard__vacio" *ngIf="!hayVentasRegistradas">
-        Todavía no hay ventas registradas para calcular rentabilidad real. Esta tabla se llena a medida que vendas.
-      </p>
-
-      <div class="tabla-bi" *ngIf="hayVentasRegistradas">
-        <div class="tabla-bi__fila tabla-bi__fila--encabezado">
-          <span>Producto</span>
-          <span class="num">Vendidos</span>
-          <span class="num">Vendidos (30d)</span>
-          <span class="num">Ingresos</span>
-          <span class="num">Ganancia</span>
-          <span>Clase</span>
-        </div>
-
-        <div class="tabla-bi__fila" *ngFor="let f of filas">
-          <div class="tabla-bi__producto">
-            <span class="tabla-bi__nombre">{{ f.nombre }}</span>
-            <div class="tabla-bi__barra-fondo">
-              <div class="tabla-bi__barra" [class]="'clase--' + f.clase" [style.width.%]="anchoBarra(f.ganancia_total)"></div>
+      <div class="alertas-grid">
+        <article class="seccion alerta-panel" id="stock-bajo">
+          <div class="alerta-panel__cabecera">
+            <div class="alerta-panel__titulo"><span class="alerta-panel__icono alerta-panel__icono--stock" aria-hidden="true">↓</span><div><h3>Stock bajo</h3><span>{{ productosStockBajo.length }} producto(s)</span></div></div>
+          </div>
+          <div class="estado estado--vacio estado--vacio-pequeno" *ngIf="productosStockBajo.length === 0"><span class="estado__icono" aria-hidden="true">✓</span><strong>Stock saludable</strong><span>Ningún producto alcanzó su mínimo.</span></div>
+          <div class="lista-alertas" *ngIf="productosStockBajo.length > 0">
+            <div class="alerta-item" *ngFor="let p of productosStockBajoVisibles">
+              <div><strong>{{ p.nombre }}</strong><span>Mínimo recomendado: {{ formatearNumero(p.stock_minimo) }}</span></div>
+              <span class="alerta-item__cantidad">{{ formatearNumero(p.stock_actual ?? 0) }} <small>{{ p.unidad_medida }}</small></span>
             </div>
           </div>
-          <span class="num">{{ f.unidades_vendidas }}</span>
-          <span class="num">{{ f.unidades_30d }}</span>
-          <span class="num">S/ {{ f.ingresos_totales.toFixed(2) }}</span>
-          <span class="num">S/ {{ f.ganancia_total.toFixed(2) }}</span>
-          <span class="clase-etiqueta" [class]="'clase--' + f.clase">{{ f.clase }}</span>
+          <button class="btn-ver-mas" type="button" *ngIf="productosStockBajo.length > limiteAlertas" (click)="mostrarTodosStockBajo = !mostrarTodosStockBajo" [attr.aria-expanded]="mostrarTodosStockBajo">{{ mostrarTodosStockBajo ? 'Ver menos' : 'Ver los ' + productosStockBajo.length + ' productos' }}</button>
+        </article>
+
+        <article class="seccion alerta-panel" id="por-vencer">
+          <div class="alerta-panel__cabecera">
+            <div class="alerta-panel__titulo"><span class="alerta-panel__icono alerta-panel__icono--vencimiento" aria-hidden="true">⌛</span><div><h3>Próximos a vencer</h3><span>{{ lotesPorVencer.length }} lote(s)</span></div></div>
+            <label class="umbral"><span>Próximos</span><input type="number" min="1" [(ngModel)]="umbralVencimientoDias" aria-label="Días próximos al vencimiento" /><span>días</span></label>
+          </div>
+          <div class="estado estado--vacio estado--vacio-pequeno" *ngIf="lotesPorVencer.length === 0"><span class="estado__icono" aria-hidden="true">✓</span><strong>Sin vencimientos cercanos</strong><span>Ningún lote vence dentro del rango.</span></div>
+          <div class="lista-alertas" *ngIf="lotesPorVencer.length > 0">
+            <div class="alerta-item" [class.alerta-item--critico]="l.dias_para_vencer! <= 3" *ngFor="let l of lotesPorVencerVisibles">
+              <div><strong>{{ l.producto_nombre }}</strong><span>{{ textoVencimiento(l.dias_para_vencer) }}</span></div>
+              <span class="alerta-item__cantidad">{{ formatearNumero(l.cantidad_actual) }} <small>{{ l.unidad_medida }}</small></span>
+            </div>
+          </div>
+          <button class="btn-ver-mas" type="button" *ngIf="lotesPorVencer.length > limiteAlertas" (click)="mostrarTodosPorVencer = !mostrarTodosPorVencer" [attr.aria-expanded]="mostrarTodosPorVencer">{{ mostrarTodosPorVencer ? 'Ver menos' : 'Ver los ' + lotesPorVencer.length + ' lotes' }}</button>
+        </article>
+
+        <article class="seccion alerta-panel" id="antiguedad">
+          <div class="alerta-panel__cabecera">
+            <div class="alerta-panel__titulo"><span class="alerta-panel__icono alerta-panel__icono--antiguedad" aria-hidden="true">□</span><div><h3>Antigüedad del stock</h3><span>{{ lotesPorAntiguedad.length }} lote(s)</span></div></div>
+            <label class="umbral"><span>Más de</span><input type="number" min="1" [(ngModel)]="umbralAntiguedadDias" aria-label="Días máximos de antigüedad" /><span>días</span></label>
+          </div>
+          <div class="estado estado--vacio estado--vacio-pequeno" *ngIf="lotesPorAntiguedad.length === 0"><span class="estado__icono" aria-hidden="true">✓</span><strong>Inventario reciente</strong><span>Ningún lote supera el umbral.</span></div>
+          <div class="lista-alertas" *ngIf="lotesPorAntiguedad.length > 0">
+            <div class="alerta-item" *ngFor="let l of lotesPorAntiguedadVisibles">
+              <div><strong>{{ l.producto_nombre }}</strong><span>{{ l.dias_en_inventario }} días en inventario</span></div>
+              <span class="alerta-item__cantidad">{{ formatearNumero(l.cantidad_actual) }} <small>{{ l.unidad_medida }}</small></span>
+            </div>
+          </div>
+          <button class="btn-ver-mas" type="button" *ngIf="lotesPorAntiguedad.length > limiteAlertas" (click)="mostrarTodosPorAntiguedad = !mostrarTodosPorAntiguedad" [attr.aria-expanded]="mostrarTodosPorAntiguedad">{{ mostrarTodosPorAntiguedad ? 'Ver menos' : 'Ver los ' + lotesPorAntiguedad.length + ' lotes' }}</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="seccion seccion--rentabilidad" id="rentabilidad" aria-labelledby="titulo-rentabilidad">
+      <div class="seccion__encabezado">
+        <div><span class="seccion__sobrelinea">Decisiones de compra</span><h2 id="titulo-rentabilidad">Rentabilidad por producto</h2><p>La clasificación ABC muestra qué productos concentran la mayor ganancia.</p></div>
+        <div class="abc-leyenda" aria-label="Leyenda de clasificación ABC"><span><i class="clase--A">A</i> Prioridad</span><span><i class="clase--B">B</i> Intermedio</span><span><i class="clase--C">C</i> Revisar</span></div>
+      </div>
+
+      <div class="estado estado--vacio" *ngIf="!hayVentasRegistradas"><span class="estado__icono" aria-hidden="true">▥</span><strong>Aún no hay suficiente información</strong><span>La clasificación aparecerá a medida que registres ventas.</span></div>
+
+      <div class="tabla-bi" *ngIf="hayVentasRegistradas">
+        <div class="tabla-bi__fila tabla-bi__fila--encabezado" aria-hidden="true"><span>Producto</span><span>Vendidos</span><span>Últimos 30 días</span><span>Ingresos</span><span>Ganancia</span><span>Clase</span></div>
+        <div class="tabla-bi__fila" *ngFor="let f of filas">
+          <div class="tabla-bi__producto">
+            <strong>{{ f.nombre }}</strong>
+            <div class="tabla-bi__barra-fondo" [attr.aria-label]="'Ganancia relativa de ' + f.nombre"><span class="tabla-bi__barra" [class]="'clase--' + f.clase" [style.width.%]="anchoBarra(f.ganancia_total)"></span></div>
+          </div>
+          <span class="tabla-bi__dato" data-label="Vendidos">{{ formatearNumero(f.unidades_vendidas) }}</span>
+          <span class="tabla-bi__dato" data-label="Últimos 30 días">{{ formatearNumero(f.unidades_30d) }}</span>
+          <span class="tabla-bi__dato" data-label="Ingresos">{{ formatearMoneda(f.ingresos_totales) }}</span>
+          <span class="tabla-bi__dato" data-label="Ganancia">{{ formatearMoneda(f.ganancia_total) }}</span>
+          <span class="clase-etiqueta" [class]="'clase--' + f.clase" [attr.aria-label]="'Clase ' + f.clase">{{ f.clase }}</span>
         </div>
       </div>
 
-      <p class="dashboard__nota" *ngIf="hayVentasRegistradas">
-        <strong>A</strong> = el 80% de tu ganancia viene de estos productos, prioridad de reposición.
-        <strong>B</strong> = aportan hasta el 95%. <strong>C</strong> = el resto, candidatos a revisar si vale la pena mantenerlos.
-      </p>
-    </div>
-
+      <p class="dashboard__nota" *ngIf="hayVentasRegistradas">Los productos A generan aproximadamente el 80% de la ganancia; conviene priorizar su reposición. Los B requieren seguimiento y los C son candidatos a revisión.</p>
+    </section>
   </ng-container>
-</section>
+</main>

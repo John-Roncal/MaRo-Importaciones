@@ -50,6 +50,7 @@ function diaMesCorto(d: Date): string {
 export class DashboardComponent implements OnInit {
   cargando = true;
   error = '';
+  ultimaActualizacion: Date | null = null;
 
   valorizacion: Valorizacion[] = [];
   filas: FilaRentabilidad[] = [];
@@ -70,8 +71,23 @@ export class DashboardComponent implements OnInit {
   fechaDesde = aIso(sumarDias(new Date(), -29)); // por defecto, últimos 30 días
   fechaHasta = aIso(new Date());
   serie: PuntoSerieVentas[] = [];
+  serieSeleccionada: PuntoSerieVentas | null = null;
   cargandoSerie = true;
   errorSerie = '';
+
+  mostrarTodosStockBajo = false;
+  mostrarTodosPorVencer = false;
+  mostrarTodosPorAntiguedad = false;
+  readonly limiteAlertas = 5;
+
+  private readonly formatoMoneda = new Intl.NumberFormat('es-PE', {
+    style: 'currency',
+    currency: 'PEN',
+    minimumFractionDigits: 2
+  });
+  private readonly formatoNumero = new Intl.NumberFormat('es-PE', {
+    maximumFractionDigits: 2
+  });
 
   constructor(
     private productoService: ProductoService,
@@ -123,6 +139,7 @@ export class DashboardComponent implements OnInit {
 
       this.productosStockBajo = productos.filter(p => (p.stock_actual ?? 0) <= p.stock_minimo);
       this.lotesSeguimiento = lotesSeguimiento;
+      this.ultimaActualizacion = new Date();
     } catch {
       this.error = 'No se pudo cargar la información de rentabilidad. Revisa tu conexión.';
     } finally {
@@ -132,6 +149,25 @@ export class DashboardComponent implements OnInit {
 
   get hayVentasRegistradas(): boolean {
     return this.filas.some(f => f.unidades_vendidas > 0);
+  }
+
+  get margenPotencial(): number {
+    return this.totalVentaPotencial > 0
+      ? (this.gananciaPotencial / this.totalVentaPotencial) * 100
+      : 0;
+  }
+
+  get textoUltimaActualizacion(): string {
+    if (!this.ultimaActualizacion) return 'Sin actualizar';
+    return `Actualizado a las ${this.ultimaActualizacion.toLocaleTimeString('es-PE', {
+      hour: '2-digit', minute: '2-digit'
+    })}`;
+  }
+
+  get productosStockBajoVisibles(): Producto[] {
+    return this.mostrarTodosStockBajo
+      ? this.productosStockBajo
+      : this.productosStockBajo.slice(0, this.limiteAlertas);
   }
 
   get maxGanancia(): number {
@@ -148,10 +184,48 @@ export class DashboardComponent implements OnInit {
       .sort((a, b) => (a.dias_para_vencer ?? 0) - (b.dias_para_vencer ?? 0));
   }
 
+  get lotesPorVencerVisibles(): LoteSeguimiento[] {
+    const lotes = this.lotesPorVencer;
+    return this.mostrarTodosPorVencer ? lotes : lotes.slice(0, this.limiteAlertas);
+  }
+
   get lotesPorAntiguedad(): LoteSeguimiento[] {
     return this.lotesSeguimiento
       .filter(l => l.dias_en_inventario >= this.umbralAntiguedadDias)
       .sort((a, b) => b.dias_en_inventario - a.dias_en_inventario);
+  }
+
+  get lotesPorAntiguedadVisibles(): LoteSeguimiento[] {
+    const lotes = this.lotesPorAntiguedad;
+    return this.mostrarTodosPorAntiguedad ? lotes : lotes.slice(0, this.limiteAlertas);
+  }
+
+  formatearMoneda(valor: number): string {
+    return this.formatoMoneda.format(valor ?? 0);
+  }
+
+  formatearNumero(valor: number): string {
+    return this.formatoNumero.format(valor ?? 0);
+  }
+
+  textoVencimiento(dias: number | null): string {
+    if (dias === null) return 'Sin fecha de vencimiento';
+    if (dias < 0) return `Venció hace ${Math.abs(dias)} día(s)`;
+    if (dias === 0) return 'Vence hoy';
+    if (dias === 1) return 'Vence mañana';
+    return `Vence en ${dias} días`;
+  }
+
+  seleccionarPeriodo(periodo: PuntoSerieVentas) {
+    this.serieSeleccionada = periodo;
+  }
+
+  limpiarPeriodoSeleccionado() {
+    this.serieSeleccionada = null;
+  }
+
+  async recargar() {
+    await Promise.all([this.cargar(), this.cargarSerie()]);
   }
 
   // ---------- Ingresos y ganancias en el tiempo ----------
@@ -166,6 +240,7 @@ export class DashboardComponent implements OnInit {
 
     this.cargandoSerie = true;
     this.errorSerie = '';
+    this.serieSeleccionada = null;
     try {
       const diarias = await this.biService.obtenerVentasDiarias(this.fechaDesde, this.fechaHasta);
       this.serie = this.agrupar(diarias, this.granularidad);
